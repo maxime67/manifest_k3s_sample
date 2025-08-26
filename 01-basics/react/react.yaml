@@ -36,4 +36,4 @@ spec:
     - protocol: TCP
       port: 80                    # Port du service
       targetPort: 80              # Port du container
-  type: NodePort                  # Ou LoadBalancer selon votre besoin
+  type: LoadBalancer                  # Ou LoadBalancer selon votre besoin
