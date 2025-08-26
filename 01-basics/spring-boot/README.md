@@ -1,12 +1,12 @@
 <h1>Déploiement Nginx sur Kubernetes</h1>
-Ce projet contient un fichier YAML permettant de déployer un serveur Nginx minimal (basé sur l’image nginx:alpine) dans un cluster Kubernetes.
+Ce projet contient un fichier YAML permettant de déployer un projet Spring boot
 
 Le déploiement crée 2 réplicas
 
 📂 Contenu du projet <br>
 Contient la définition du déploiement Kubernetes avec :
 
-<li>2 pods Nginx</li>
+<li>2 pods Tomcat</li>
 
 <li>La configuration des containers et du port exposé </li>
 
@@ -21,7 +21,7 @@ Avant d’utiliser ce projet, assure-toi d’avoir :
 Clone ou copie ce projet sur ta machine.
 
 Applique le manifeste Kubernetes avec la commande : <br>
-<code> kubectl apply -f nginx.yaml </code> <br>
+<code> kubectl apply -f springboot.yaml </code> <br>
 
 Vérifie que les pods sont bien créés : <br>
 <code> kubectl get pods </code>
