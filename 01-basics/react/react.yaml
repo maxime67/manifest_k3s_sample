@@ -22,3 +22,18 @@ spec:                               # Section spécifiant la configuration du De
           image: maxxa/reacttest:latest       # Image Docker utilisée. 'nginx:alpine' est une version légère de Nginx basée sur Alpine Linux.
           ports:                    # Définition des ports exposés par le container.
             - containerPort: 80     # Le container écoute sur le port 80 (port HTTP par défaut).
+
+---
+# -------------------- SERVICE --------------------
+apiVersion: v1
+kind: Service
+metadata:
+  name: react-test-service
+spec:
+  selector:
+    app: react                    # Doit correspondre aux labels de vos pods
+  ports:
+    - protocol: TCP
+      port: 80                    # Port du service
+      targetPort: 80              # Port du container
+  type: NodePort                  # Ou LoadBalancer selon votre besoin
