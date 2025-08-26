@@ -21,7 +21,7 @@ spec:                               # Section spécifiant la configuration du De
         - name: nginx               # Nom interne du container dans le Pod.
           image: maxxa/demospringboot:latest       # Image Docker utilisée.
           ports:                    # Définition des ports exposés par le container.
-            - containerPort: 80     # Le container écoute sur le port 80 (port HTTP par défaut).
+            - containerPort: 8080     # Le container écoute sur le port 80 (port HTTP par défaut).
 ---
 # -------------------- SERVICE NodePort --------------------
 apiVersion: v1
@@ -35,4 +35,4 @@ spec:
   ports:
     - protocol: TCP
       port: 80
-      targetPort: 80
+      targetPort: 8080
