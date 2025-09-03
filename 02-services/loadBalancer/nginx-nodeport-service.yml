@@ -1,0 +1,51 @@
+# -------------------- DÉPLOIEMENT Nginx --------------------
+apiVersion: apps/v1                 # Version de l'API Kubernetes utilisée pour les déploiements (apps/v1 est la version stable actuelle).
+kind: Deployment                    # Type de ressource : un Deployment, qui gère la création, la mise à l'échelle et les mises à jour des Pods.
+metadata:
+  name: nginx-nodeport-test         # Nom du Deployment. Sert d'identifiant unique dans le namespace.
+
+spec:                               # Section spécifiant la configuration du Deployment.
+  replicas: 2                       # Nombre de Pods répliqués que l'on souhaite (ici, 2 Pods Nginx identiques tourneront en parallèle).
+
+  selector:                         # Définit quels Pods seront gérés par ce Deployment.
+    matchLabels:                    # Condition : les Pods doivent avoir les labels spécifiés ci-dessous.
+      app: nginx-nodeport           # Ici, tous les Pods avec le label "app: nginx-nodeport" seront gérés par ce Deployment.
+
+  template:                         # Modèle de Pod à utiliser pour créer les réplicas.
+    metadata:
+      labels:                       # Labels appliqués aux Pods créés par ce Deployment.
+        app: nginx-nodeport         # Ce label doit correspondre au "selector" plus haut pour que le Service et le Deployment fonctionnent correctement.
+
+    spec:                           # Spécification du Pod (contenu du Pod).
+      containers:                   # Liste des containers qui tourneront dans chaque Pod.
+        - name: nginx               # Nom interne du container dans le Pod.
+          image: nginx:alpine       # Image Docker utilisée. 'nginx:alpine' est une version légère de Nginx basée sur Alpine Linux.
+          ports:                    # Définition des ports exposés par le container.
+            - containerPort: 80     # Le container écoute sur le port 80 (port HTTP par défaut).
+
+---
+# -------------------- SERVICE NODEPORT --------------------
+apiVersion: v1                     # Version de l'API Kubernetes utilisée pour les services (v1 est la version stable).
+kind: Service                      # Type de ressource : un Service, qui expose les Pods et permet la communication réseau.
+metadata:
+  name: nginx-nodeport-service     # Nom du Service. Servira de nom DNS interne ET d'identification pour l'accès externe.
+
+spec:                              # Section spécifiant la configuration du Service.
+  type: NodePort                   # Type de Service : NodePort expose le service sur un port statique sur chaque nœud du cluster.
+                                   # Il étend ClusterIP en ajoutant un accès externe via l'IP des nœuds.
+
+  selector:                        # Définit quels Pods seront exposés par ce Service.
+    app: nginx-nodeport            # Tous les Pods avec le label "app: nginx-nodeport" seront inclus dans ce Service (correspond au Deployment).
+
+  ports:                           # Configuration des ports du Service.
+    - protocol: TCP                # Protocole utilisé (TCP pour HTTP).
+      port: 80                     # Port interne du service (utilisé pour communication intra-cluster).
+      targetPort: 80               # Port du container vers lequel le trafic sera redirigé (containerPort du Deployment).
+      # nodePort: 30080            # Port externe sur les nœuds (optionnel - si omis, Kubernetes assigne automatiquement un port dans la plage 30000-32767).
+                                   # Décommente et modifie cette ligne pour forcer un port spécifique.
+
+# FONCTIONNEMENT :
+# - Depuis l'INTÉRIEUR du cluster : http://nginx-nodeport-service:80
+# - Depuis l'EXTÉRIEUR du cluster : http://NODE_IP:NODE_PORT
+# - Le service fait automatiquement le load balancing entre tous les Pods disponibles
+# - Accessible sur TOUS les nœuds du cluster, même ceux qui n'hébergent pas de pods Nginx
