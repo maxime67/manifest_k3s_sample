@@ -2,19 +2,19 @@
 apiVersion: apps/v1                 # Version de l'API Kubernetes utilisée pour les déploiements (apps/v1 est la version stable actuelle).
 kind: Deployment                    # Type de ressource : un Deployment, qui gère la création, la mise à l'échelle et les mises à jour des Pods.
 metadata:
-  name: nginx-loadbalancer-test     # Nom du Deployment. Sert d'identifiant unique dans le namespace.
+  name: nginx-nodeport-test         # Nom du Deployment. Sert d'identifiant unique dans le namespace.
 
 spec:                               # Section spécifiant la configuration du Deployment.
   replicas: 2                       # Nombre de Pods répliqués que l'on souhaite (ici, 2 Pods Nginx identiques tourneront en parallèle).
 
   selector:                         # Définit quels Pods seront gérés par ce Deployment.
     matchLabels:                    # Condition : les Pods doivent avoir les labels spécifiés ci-dessous.
-      app: nginx-loadbalancer       # Ici, tous les Pods avec le label "app: nginx-loadbalancer" seront gérés par ce Deployment.
+      app: nginx-nodeport           # Ici, tous les Pods avec le label "app: nginx-nodeport" seront gérés par ce Deployment.
 
   template:                         # Modèle de Pod à utiliser pour créer les réplicas.
     metadata:
       labels:                       # Labels appliqués aux Pods créés par ce Deployment.
-        app: nginx-loadbalancer     # Ce label doit correspondre au "selector" plus haut pour que le Service et le Deployment fonctionnent correctement.
+        app: nginx-nodeport         # Ce label doit correspondre au "selector" plus haut pour que le Service et le Deployment fonctionnent correctement.
 
     spec:                           # Spécification du Pod (contenu du Pod).
       containers:                   # Liste des containers qui tourneront dans chaque Pod.
@@ -22,82 +22,30 @@ spec:                               # Section spécifiant la configuration du De
           image: nginx:alpine       # Image Docker utilisée. 'nginx:alpine' est une version légère de Nginx basée sur Alpine Linux.
           ports:                    # Définition des ports exposés par le container.
             - containerPort: 80     # Le container écoute sur le port 80 (port HTTP par défaut).
-          # Health checks recommandés pour la production
-          livenessProbe:            # Sonde de vitalité : redémarre le container si l'application ne répond pas.
-            httpGet:                # Vérification HTTP pour tester si l'application fonctionne.
-              path: /               # Endpoint HTTP à tester (page d'accueil Nginx).
-              port: 80              # Port sur lequel effectuer la requête HTTP.
-            initialDelaySeconds: 30 # Attendre 30 secondes après le démarrage avant la première vérification.
-            periodSeconds: 10       # Vérifier toutes les 10 secondes.
-          readinessProbe:           # Sonde de disponibilité : retire le Pod du Service s'il n'est pas prêt.
-            httpGet:                # Vérification HTTP pour tester si l'application peut recevoir du trafic.
-              path: /               # Endpoint HTTP à tester.
-              port: 80              # Port sur lequel effectuer la requête HTTP.
-            initialDelaySeconds: 5  # Attendre 5 secondes après le démarrage avant la première vérification.
-            periodSeconds: 5        # Vérifier toutes les 5 secondes.
-          # Limites de ressources pour la production
-          resources:                # Définition des ressources allouées au container.
-            limits:                 # Limites maximales (le container ne peut pas dépasser ces valeurs).
-              memory: "128Mi"       # Maximum 128 MiB de RAM.
-              cpu: "100m"           # Maximum 0.1 CPU (100 millicores).
-            requests:               # Ressources demandées (garanties par Kubernetes).
-              memory: "64Mi"        # Au moins 64 MiB de RAM garantis.
-              cpu: "50m"            # Au moins 0.05 CPU (50 millicores) garantis.
 
 ---
-# -------------------- SERVICE LOADBALANCER --------------------
+# -------------------- SERVICE NODEPORT --------------------
 apiVersion: v1                     # Version de l'API Kubernetes utilisée pour les services (v1 est la version stable).
 kind: Service                      # Type de ressource : un Service, qui expose les Pods et permet la communication réseau.
 metadata:
-  name: nginx-loadbalancer-service # Nom du Service. Servira de nom DNS interne ET d'identification pour le load balancer externe.
-  # Annotations optionnelles pour configuration cloud-specific
-  annotations:
-  # Exemples d'annotations (décommente selon ton environnement) :
-
-  # AWS ELB/ALB
-  # service.beta.kubernetes.io/aws-load-balancer-type: "nlb"                    # Network Load Balancer (recommandé)
-  # service.beta.kubernetes.io/aws-load-balancer-cross-zone-load-balancing-enabled: "true"
-
-  # GCP Cloud Load Balancer
-  # cloud.google.com/load-balancer-type: "External"                            # Load balancer externe
-  # cloud.google.com/backend-config: '{"default": "nginx-backendconfig"}'      # Configuration avancée
-
-  # Azure Load Balancer
-  # service.beta.kubernetes.io/azure-load-balancer-internal: "false"           # Load balancer public
-
-  # MetalLB (on-premises)
-  # metallb.universe.tf/address-pool: "production-public-ips"                  # Pool d'IPs MetalLB
+  name: nginx-nodeport-service     # Nom du Service. Servira de nom DNS interne ET d'identification pour l'accès externe.
 
 spec:                              # Section spécifiant la configuration du Service.
-  type: LoadBalancer               # Type de Service : LoadBalancer provisionne un load balancer externe via le cloud provider.
-  # Il étend NodePort en ajoutant une IP publique et un load balancer managé.
+  type: NodePort                   # Type de Service : NodePort expose le service sur un port statique sur chaque nœud du cluster.
+  # Il étend ClusterIP en ajoutant un accès externe via l'IP des nœuds.
 
   selector:                        # Définit quels Pods seront exposés par ce Service.
-    app: nginx-loadbalancer        # Tous les Pods avec le label "app: nginx-loadbalancer" seront inclus dans ce Service.
+    app: nginx-nodeport            # Tous les Pods avec le label "app: nginx-nodeport" seront inclus dans ce Service (correspond au Deployment).
 
   ports:                           # Configuration des ports du Service.
     - protocol: TCP                # Protocole utilisé (TCP pour HTTP).
-      port: 80                     # Port externe sur lequel le load balancer écoute (port public standard pour HTTP).
+      port: 80                     # Port interne du service (utilisé pour communication intra-cluster).
       targetPort: 80               # Port du container vers lequel le trafic sera redirigé (containerPort du Deployment).
-      # name: http                 # Nom optionnel du port (utile pour plusieurs ports).
+        # nodePort: 30080            # Port externe sur les nœuds (optionnel - si omis, Kubernetes assigne automatiquement un port dans la plage 30000-32767).
+      # Décommente et modifie cette ligne pour forcer un port spécifique.
 
-    # Port HTTPS optionnel (décommente si nécessaire)
-    # - protocol: TCP
-    #   port: 443                  # Port HTTPS standard
-    #   targetPort: 80             # Nginx reste en HTTP, SSL terminé sur le load balancer
-    #   name: https
-
-# FONCTIONNEMENT DU LOADBALANCER :
-# 1. Le cloud provider (AWS/GCP/Azure) ou MetalLB provisionne automatiquement un load balancer externe
-# 2. Une IP publique est assignée et visible dans kubectl get svc (colonne EXTERNAL-IP)
-# 3. Le trafic arrive sur l'IP publique:80, est routé vers les nœuds, puis vers les Pods
-# 4. Double niveau de load balancing : externe (cloud) + interne (Kubernetes)
-#
-# ACCÈS :
-# - Depuis l'EXTÉRIEUR : http://EXTERNAL_IP (IP publique assignée automatiquement)
-# - Depuis l'INTÉRIEUR : http://nginx-loadbalancer-service:80 (comme un ClusterIP)
-#
-# ENVIRONNEMENTS SUPPORTÉS :
-# - Cloud : AWS (ELB), GCP (Cloud LB), Azure (Load Balancer) - IP publique réelle
-# - K3s : Servicelb (utilise l'IP du nœud) - pour dev/test
-# - On-premises : MetalLB, HAProxy, F5 - IP du pool configuré
+# FONCTIONNEMENT :
+# - Depuis l'INTÉRIEUR du cluster : http://nginx-nodeport-service:80
+# - Depuis l'EXTÉRIEUR du cluster : http://NODE_IP:NODE_PORT
+# - Le service fait automatiquement le load balancing entre tous les Pods disponibles
+# - Accessible sur TOUS les nœuds du cluster, même ceux qui n'hébergent pas de pods Nginx
