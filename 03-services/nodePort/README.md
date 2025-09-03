@@ -59,7 +59,7 @@ Avant d'utiliser ce projet, assure-toi d'avoir :
 kubectl get svc nginx-nodeport-service
 # Exemple de sortie :
 # NAME                    TYPE       CLUSTER-IP    EXTERNAL-IP   PORT(S)        AGE
-# nginx-nodeport-service  NodePort   10.43.xx.xx   <none>        80:31234/TCP   1m
+# nginx-nodeport-service  NodePort   10.43.xx.xx   <none>        80:3xxxx/TCP   1m
 
 # Récupérer les IPs des nœuds
 kubectl get nodes -o wide
@@ -72,8 +72,7 @@ kubectl get nodes -o wide
 curl http://NODE_IP:NODE_PORT
 
 # Exemples concrets :
-curl http://192.168.1.100:31234
-curl http://192.168.1.101:31234  # Marche sur tous les nœuds même si le pod n'y est pas
+curl http://192.168.1.100:3xxxx
 ```
 
 ### Accès depuis l'intérieur du cluster
@@ -94,18 +93,6 @@ wget -qO- http://nginx-nodeport-service:80
 Tu peux également accéder à l'application via un navigateur web :
 ```
 http://NODE_IP:NODE_PORT
-```
-
-## 📊 Vérification du load balancing
-
-```bash
-# Vérifier la distribution du trafic
-kubectl get pods -l app=nginx-nodeport -o wide
-
-# Effectuer plusieurs requêtes pour tester la répartition
-for i in $(seq 1 10); do
-  curl -s http://NODE_IP:NODE_PORT | grep "Welcome to nginx"
-done
 ```
 
 ## 🔧 Configuration avancée
@@ -140,14 +127,6 @@ kubectl describe svc nginx-nodeport-service
 - **Haute disponibilité** : Le service marche même si un nœud tombe (tant qu'il reste des pods actifs)
 - **Performance** : Ajoute une couche de routage supplémentaire par rapport à ClusterIP
 
-## 🔄 Comparaison avec les autres types de services
-
-| Type | Accessibilité | IP/Port | Complexité | Usage |
-|------|---------------|---------|------------|-------|
-| ClusterIP | Interne seulement | IP virtuelle interne | Simple | Microservices |
-| **NodePort** | Interne + Externe | IP des nœuds:30000+ | Modérée | Développement, tests |
-| LoadBalancer | Externe optimisé | IP publique | Complexe | Production |
-
 ## 🛠️ Troubleshooting
 
 ### Service non accessible depuis l'extérieur
@@ -177,7 +156,7 @@ kubectl get svc --all-namespaces | grep NodePort
 ss -tlnp | grep :31234
 netstat -tlnp | grep :31234
 
-# Avec iptables/firewall
+# Avec iptables
 iptables -L | grep 31234
 ```
 
