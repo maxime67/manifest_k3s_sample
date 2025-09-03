@@ -1,6 +1,6 @@
 # K3s Deployment Samples 🚀
 
-Ce repository contient une collection d'exemples de déploiements Kubernetes optimisés pour K3s, allant des composants basiques aux applications complètes.
+Ce repository contient une collection d'exemples de déploiements Kubernetes testés dans un environnement K3s, allant des composants basiques aux applications complètes.
 
 ## 📋 Vue d'ensemble
 
@@ -15,9 +15,13 @@ Ce projet propose des exemples pratiques pour déployer des applications sur K3s
 │   ├── postgresql_persistent/          # PostgreSQL avec persistance
 │   ├── react/                          # Application React avec Nginx
 │   └── spring-boot/                    # Application Spring Boot
-└── 02-application/                     # Applications complètes
-    ├── 3_tier_demo/                    # App 3-tiers (Vue.js + Express + MongoDB)
-    └── symfony_mysql/                  # Application Symfony + MySQL
+├── 02-application/                     # Applications complètes
+│    ├── 3_tier_demo/                   # App 3-tiers (Vue.js + Express + MongoDB)
+│    └── symfony_mysql/                 # Application Symfony + MySQL
+└── 03-services/ 
+     ├── clusterIP/                     # Détails sur la mise en place d'un service ClusterIP
+     └── nodePort/                      # Détails sur la mise en place d'un service nodePort
+   
 ```
 
 ## 🎯 Exemples disponibles
@@ -29,11 +33,12 @@ Ce projet propose des exemples pratiques pour déployer des applications sur K3s
 - **Description** : Serveur web Nginx basique avec 2 réplicas
 - **Image** : `nginx:alpine`
 - **Commande** : `kubectl apply -f nginx.yaml`
-- **Accès** : Via l'IP du master (Traefik intégré)
+- **Service** : NodePort (port 80 → 8080)
+- **Commande de vérification** : `kubectl get logs` puis `curl <MASTER_IP>:<PORT>`
 
 #### 🐘 PostgreSQL (Mémoire)
 - **Chemin** : `01-basics/postgresql_memory/`
-- **Description** : Base PostgreSQL avec stockage temporaire (emptyDir)
+- **Description** : Base PostgreSQL avec stockage temporaire
 - **Image** : `postgres:15`
 - **Service** : ClusterIP sur port 5432
 - **⚠️ Note** : Les données sont perdues au redémarrage du pod
@@ -43,7 +48,7 @@ Ce projet propose des exemples pratiques pour déployer des applications sur K3s
 - **Description** : Base PostgreSQL avec stockage persistant (PVC)
 - **Image** : `postgres:15`
 - **Service** : ClusterIP sur port 5432
-- **✅ Avantage** : Conservation des données entre les redémarrages
+- **✅ Avantage** : Conservation des données entre les redémarrages et après suppresion des pods
 
 #### ⚛️ React Application
 - **Chemin** : `01-basics/react/`
@@ -57,7 +62,7 @@ Ce projet propose des exemples pratiques pour déployer des applications sur K3s
 - **Description** : Application Spring Boot avec Tomcat
 - **Image** : `maxxa/demospringboot:latest`
 - **Service** : NodePort (port 80 → 8080)
-- **Réplicas** : 2 pods pour la haute disponibilité
+- **Réplicas** : 2 pods
 
 ### 02-application - Applications complètes
 
@@ -93,7 +98,19 @@ Ce projet propose des exemples pratiques pour déployer des applications sur K3s
     - PVC pour persistance MySQL (1Gi)
     - LoadBalancer avec NodePort 30080
     - Variables d'environnement sécurisées via Secrets
-
+### 02-application - Applications complètes
+#### ClusterIP
+- **Chemin** : `03-services/clusterIp/`
+- **Description** : Application Spring Boot avec Tomcat
+- **Image** : `maxxa/demospringboot:latest`
+- **Service** : NodePort (port 80 → 8080)
+- **Réplicas** : 2 pods pour la haute disponibilité
+#### NodePort
+- **Chemin** : `03-services/clusterIp/`
+- **Description** : Application Spring Boot avec Tomcat
+- **Image** : `maxxa/demospringboot:latest`
+- **Service** : NodePort (port 80 → 8080)
+- **Réplicas** : 2 pods pour la haute disponibilité
 ## 🐳 Images Docker personnalisées
 
 Les images personnalisées sont disponibles sur Docker Hub : **[maxxa](https://hub.docker.com/repositories/maxxa)**
