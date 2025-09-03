@@ -133,7 +133,12 @@ metadata:
   annotations:
     # Annotation pour forcer la re-création du Job à chaque déploiement
     argocd.argoproj.io/sync-options: Replace=true
+  labels:
+    app: migration-job
 spec:
+  selector:
+    matchLabels:
+      app: migration-job
   template:
     spec:
       restartPolicy: OnFailure
