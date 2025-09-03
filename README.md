@@ -98,10 +98,10 @@ Ce projet propose des exemples pratiques pour déployer des applications sur K3s
     - PVC pour persistance MySQL (1Gi)
     - LoadBalancer avec NodePort 30080
     - Variables d'environnement sécurisées via Secrets
-### 02-application - Applications complètes
+### 03-services - Exemple d'utilisation de service
 #### ClusterIP
 - **Chemin** : `03-services/clusterIp/`
-- **Description** : Application Spring Boot avec Tomcat
+- **Description** : Utilisation du service ClusterIp
 - **Image** : `maxxa/demospringboot:latest`
 - **Service** : NodePort (port 80 → 8080)
 - **Réplicas** : 2 pods pour la haute disponibilité
