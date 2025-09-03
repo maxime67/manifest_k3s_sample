@@ -111,7 +111,7 @@ metadata:
   labels:                          # Labels appliqués au Deployment lui-même (métadonnées).
     app: symfony-app               # Label pour identifier ce Deployment.
 spec:                              # Section spécifiant la configuration du Deployment.
-  replicas: 2                      # Nombre de Pods Symfony répliqués (2 pour la haute disponibilité et la répartition de charge).
+  replicas: 4                      # Nombre de Pods Symfony répliqués (2 pour la haute disponibilité et la répartition de charge).
   selector:                        # Définit quels Pods seront gérés par ce Deployment.
     matchLabels:                   # Condition de sélection des Pods.
       app: symfony-app             # Tous les Pods avec le label "app: symfony-app" seront gérés.
