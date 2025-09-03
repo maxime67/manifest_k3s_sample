@@ -1,20 +1,16 @@
 # -------------------- SECRETS --------------------
-apiVersion: v1                     # Version de l'API Kubernetes utilisée pour les Secrets (v1 est la version stable).
-kind: Secret                       # Type de ressource : un Secret, qui stocke des données sensibles de manière sécurisée (encodées en base64).
+apiVersion: v1
+kind: Secret
 metadata:
-  name: symfony-secrets            # Nom du Secret (référencé dans les Deployments pour récupérer les variables sensibles).
-type: Opaque                       # Type de Secret : Opaque permet de stocker des données arbitraires définies par l'utilisateur.
-data:                              # Section contenant les données sensibles encodées en base64.
-  # mysql://user:password@mysql-service:3306/my_database
-  database-url: bXlzcWw6Ly91c2VyOnBhc3N3b3JkQG15c3FsLXNlcnZpY2U6MzMwNi9teV9kYXRhYmFzZQ==  # URL complète de connexion MySQL pour Symfony (encodée en base64).
-  # Généré avec: openssl rand -hex 32 | base64
-  app-secret: YWJjZGVmZ2hpams2bG1ub3BxcnN0dXZ3eHl6MTIzNDU2Nzg5MA==                              # Clé secrète de l'application Symfony pour le chiffrement/hachage (encodée en base64).
-  # password
-  database_password: cGFzc3dvcmQ=  # Mot de passe de la base de données MySQL (encodé en base64).
-  # user
-  database_username: dXNlcg==      # Nom d'utilisateur de la base de données MySQL (encodé en base64).
-  # my_database
-  database_name: bXlfZGF0YWJhc2U=  # Nom de la base de données MySQL à créer (encodé en base64).
+  name: symfony-secrets
+type: Opaque
+data:
+  database-url: bXlzcWw6Ly91c2VyOnBhc3N3b3JkQG15c3FsLXNlcnZpY2U6MzMwNi9teV9kYXRhYmFzZQ==
+  app-secret: YWJjZGVmZ2hpams2bG1ub3BxcnN0dXZ3eHl6MTIzNDU2Nzg5MA==
+  database_password: cGFzc3dvcmQ=
+  database_username: dXNlcg==
+  database_name: bXlfZGF0YWJhc2U=
+
 ---
 # -------------------- AUTOSCALE --------------------
 apiVersion: autoscaling/v2
@@ -41,191 +37,223 @@ spec:
         target:
           type: Utilization
           averageUtilization: 80
+
 ---
 # -------------------- PERSISTENT VOLUME CLAIM --------------------
-apiVersion: v1                     # Version de l'API Kubernetes utilisée pour les PVC (v1 est la version stable).
-kind: PersistentVolumeClaim        # Type de ressource : un PVC, qui demande un espace de stockage persistant pour les données MySQL.
+apiVersion: v1
+kind: PersistentVolumeClaim
 metadata:
-  name: mysql-pvc                  # Nom du PVC (référencé dans le Deployment MySQL pour monter le volume).
-spec:                              # Section spécifiant la configuration du PVC.
-  accessModes:                     # Modes d'accès au volume.
-    - ReadWriteOnce                # ReadWriteOnce : le volume peut être monté en lecture-écriture par un seul nœud à la fois (adapté pour MySQL).
-  resources:                       # Ressources demandées pour le volume.
-    requests:                      # Demande de ressources.
-      storage: 1Gi                # Taille du stockage demandé pour persister les données MySQL (1 gigaoctet).
+  name: mysql-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
 
 ---
 # -------------------- DÉPLOIEMENT MYSQL --------------------
-apiVersion: apps/v1                 # Version de l'API Kubernetes utilisée pour les déploiements (apps/v1 est la version stable actuelle).
-kind: Deployment                    # Type de ressource : un Deployment, qui gère la création, la mise à l'échelle et les mises à jour des Pods MySQL.
+apiVersion: apps/v1
+kind: Deployment
 metadata:
-  name: mysql                      # Nom du Deployment MySQL. Sert d'identifiant unique dans le namespace.
-spec:                              # Section spécifiant la configuration du Deployment.
-  replicas: 1                      # Nombre de Pods MySQL répliqués (1 seul pour éviter les conflits de données).
-  selector:                        # Définit quels Pods seront gérés par ce Deployment.
-    matchLabels:                   # Condition : les Pods doivent avoir les labels spécifiés ci-dessous.
-      app: mysql                   # Ici, tous les Pods avec le label "app: mysql" seront gérés par ce Deployment.
-  template:                        # Modèle de Pod à utiliser pour créer les réplicas MySQL.
+  name: mysql
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql
+  template:
     metadata:
-      labels:                      # Labels appliqués aux Pods créés par ce Deployment.
-        app: mysql                 # Ce label doit correspondre au "selector" plus haut pour que le Service fonctionne correctement.
-    spec:                          # Spécification du Pod MySQL.
-      containers:                  # Liste des containers qui tourneront dans chaque Pod.
-        - name: mysql              # Nom interne du container MySQL dans le Pod.
-          image: mysql:latest      # Image Docker utilisée (⚠️ latest non recommandé en prod, préférer une version spécifique).
-          env:                     # Variables d'environnement nécessaires pour configurer MySQL.
-            - name: MYSQL_ROOT_PASSWORD  # Mot de passe de l'utilisateur root MySQL.
-              valueFrom:           # Récupération de la valeur depuis un Secret (plus sécurisé qu'une valeur en dur).
-                secretKeyRef:      # Référence vers un Secret existant.
-                  name: symfony-secrets  # Nom du Secret contenant les données sensibles.
-                  key: database_password # Clé spécifique dans le Secret contenant le mot de passe.
-            - name: MYSQL_USER     # Nom d'utilisateur MySQL non-root à créer automatiquement.
+      labels:
+        app: mysql
+    spec:
+      containers:
+        - name: mysql
+          image: mysql:latest
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: symfony-secrets
+                  key: database_password
+            - name: MYSQL_USER
               valueFrom:
                 secretKeyRef:
                   name: symfony-secrets
                   key: database_username
-            - name: MYSQL_PASSWORD # Mot de passe pour l'utilisateur MySQL non-root.
+            - name: MYSQL_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: symfony-secrets  # Nom du Secret (corrigé depuis symfony-secretscloud).
+                  name: symfony-secrets
                   key: database_password
-            - name: MYSQL_DATABASE # Nom de la base de données à créer automatiquement au démarrage.
+            - name: MYSQL_DATABASE
               valueFrom:
                 secretKeyRef:
                   name: symfony-secrets
                   key: database_name
-          ports:                   # Définition des ports exposés par le container.
-            - containerPort: 3306  # Le container MySQL écoute sur le port 3306 (port MySQL par défaut).
-          volumeMounts:            # Points de montage pour persister les données MySQL.
-            - name: mysql-data     # Nom du volume à monter (doit correspondre au nom défini dans "volumes").
-              mountPath: /var/lib/mysql  # Chemin dans le container où MySQL stocke ses données de manière persistante.
-          readinessProbe:          # Sonde de vérification que MySQL est prêt à recevoir des connexions.
-            exec:                  # Commande à exécuter pour vérifier l'état de MySQL.
+          ports:
+            - containerPort: 3306
+          volumeMounts:
+            - name: mysql-data
+              mountPath: /var/lib/mysql
+          readinessProbe:
+            exec:
               command:
-                - mysqladmin       # Utilitaire MySQL pour l'administration.
-                - ping             # Commande pour vérifier si MySQL répond.
-                - -h               # Option pour spécifier l'hôte.
-                - localhost        # Connexion locale au MySQL du container.
-            initialDelaySeconds: 30 # Attendre 30 secondes avant la première vérification (le temps que MySQL démarre).
-            periodSeconds: 10      # Vérifier toutes les 10 secondes si MySQL est prêt.
-      volumes:                     # Définition des volumes utilisés par les containers.
-        - name: mysql-data         # Nom du volume (référencé dans "volumeMounts").
-          persistentVolumeClaim:   # Type de volume : PersistentVolumeClaim pour persister les données MySQL.
-            claimName: mysql-pvc   # Nom du PVC (PersistentVolumeClaim) défini plus haut.
+                - mysqladmin
+                - ping
+                - -h
+                - localhost
+            initialDelaySeconds: 30
+            periodSeconds: 10
+      volumes:
+        - name: mysql-data
+          persistentVolumeClaim:
+            claimName: mysql-pvc
 
 ---
 # -------------------- SERVICE MYSQL --------------------
-apiVersion: v1                     # Version de l'API Kubernetes utilisée pour les services (v1 est la version stable).
-kind: Service                      # Type de ressource : un Service, qui expose les Pods MySQL et permet la communication réseau.
+apiVersion: v1
+kind: Service
 metadata:
-  name: mysql-service              # Nom du Service MySQL. Servira de nom DNS interne (mysql-service) pour accéder à MySQL.
-spec:                              # Section spécifiant la configuration du Service.
-  selector:                        # Définit quels Pods seront exposés par ce Service.
-    app: mysql                     # Tous les Pods avec le label "app: mysql" seront inclus dans ce Service.
-  ports:                           # Configuration des ports du Service.
-    - port: 3306                   # Port sur lequel le Service écoute (port accessible par les autres Pods du cluster).
-      targetPort: 3306             # Port du container vers lequel le trafic sera redirigé (port MySQL).
-  type: ClusterIP                  # Type de Service : ClusterIP rend MySQL accessible uniquement depuis l'intérieur du cluster.
+  name: mysql-service
+spec:
+  selector:
+    app: mysql
+  ports:
+    - port: 3306
+      targetPort: 3306
+  type: ClusterIP
 
 ---
-# -------------------- DEPLOIEMENT SYMFONY --------------------
-apiVersion: apps/v1                 # Version de l'API Kubernetes utilisée pour les déploiements (apps/v1 est la version stable).
-kind: Deployment                    # Type de ressource : un Deployment, qui gère la création et la mise à l'échelle des Pods Symfony.
+# -------------------- JOB MIGRATIONS --------------------
+apiVersion: batch/v1
+kind: Job
 metadata:
-  name: symfony-app                # Nom du Deployment Symfony.
-  labels:                          # Labels appliqués au Deployment lui-même (métadonnées).
-    app: symfony-app               # Label pour identifier ce Deployment.
-spec:                              # Section spécifiant la configuration du Deployment.
-  replicas: 2                      # Nombre de Pods Symfony répliqués (2 pour la haute disponibilité et la répartition de charge).
-  selector:                        # Définit quels Pods seront gérés par ce Deployment.
-    matchLabels:                   # Condition de sélection des Pods.
-      app: symfony-app             # Tous les Pods avec le label "app: symfony-app" seront gérés.
-  template:                        # Modèle de Pod à utiliser pour créer les réplicas Symfony.
-    metadata:
-      labels:                      # Labels appliqués aux Pods créés par ce Deployment.
-        app: symfony-app           # Ce label doit correspondre au "selector" pour que le Service fonctionne.
-    spec:                          # Spécification du Pod Symfony.
-      # Containers d'initialisation qui s'exécutent avant les containers principaux
-      initContainers:              # Containers d'initialisation exécutés séquentiellement avant le container principal.
-        # 1. Attendre que MySQL soit prêt avant de démarrer Symfony
-        - name: wait-for-mysql     # Premier init container : vérification de la disponibilité de MySQL.
-          image: mysql:latest      # Image contenant les outils MySQL pour tester la connexion.
-          command:                 # Commande à exécuter dans le container d'initialisation.
-            - sh                   # Shell pour exécuter un script.
-            - -c                   # Option pour exécuter une commande depuis une chaîne.
-            - |                    # Script multilignes pour attendre que MySQL soit disponible.
+  name: symfony-migrations-job
+  annotations:
+    # Annotation pour forcer la re-création du Job à chaque déploiement
+    argocd.argoproj.io/sync-options: Replace=true
+spec:
+  template:
+    spec:
+      restartPolicy: OnFailure
+      initContainers:
+        # Attendre que MySQL soit prêt
+        - name: wait-for-mysql
+          image: mysql:latest
+          command:
+            - sh
+            - -c
+            - |
               until mysqladmin ping -h mysql-service -u root -p$MYSQL_ROOT_PASSWORD --silent; do
-                echo "Waiting for MySQL..."  # Message d'attente.
-                sleep 2            # Attendre 2 secondes entre chaque tentative.
+                echo "Waiting for MySQL..."
+                sleep 2
               done
-              echo "MySQL is ready!"  # Message de confirmation que MySQL est prêt.
-          env:                     # Variables d'environnement pour le container d'initialisation.
-            - name: MYSQL_ROOT_PASSWORD  # Mot de passe root MySQL nécessaire pour la connexion de test.
+              echo "MySQL is ready!"
+          env:
+            - name: MYSQL_ROOT_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: symfony-secrets
                   key: database_password
-
-        # 2. Exécuter les migrations Symfony avant le démarrage de l'application
-        - name: symfony-migrations  # Deuxième init container : exécution des migrations Doctrine.
-          image: maxxa/k3s:latest   # Même image que l'application Symfony (contient PHP et les commandes Symfony).
-          command:                 # Commande pour exécuter les migrations Doctrine.
-            - sh                   # Shell pour exécuter les commandes Symfony.
-            - -c                   # Option pour exécuter une commande depuis une chaîne.
-            - |                    # Script multilignes pour les migrations.
+      containers:
+        - name: symfony-migrations
+          image: maxxa/k3s:latest
+          command:
+            - sh
+            - -c
+            - |
               echo "Starting Symfony migrations..."
               php bin/console doctrine:database:create --if-not-exists
               php bin/console doctrine:migrations:migrate --no-interaction
               echo "Migrations completed successfully!"
-          env:                     # Variables d'environnement identiques au container principal.
-            - name: DATABASE_URL   # URL de connexion à MySQL nécessaire pour les migrations.
+          env:
+            - name: DATABASE_URL
               valueFrom:
                 secretKeyRef:
                   name: symfony-secrets
                   key: database-url
-            - name: APP_ENV        # Environnement Symfony pour les migrations.
-              value: "prod"        # Environnement de production.
-            - name: APP_SECRET     # Clé secrète Symfony.
+            - name: APP_ENV
+              value: "prod"
+            - name: APP_SECRET
               valueFrom:
                 secretKeyRef:
                   name: symfony-secrets
                   key: app-secret
-          workingDir: /var/www/html  # Répertoire de travail où se trouve l'application Symfony.
-      containers:                  # Containers principaux du Pod.
-        - name: symfony-app        # Nom du container Symfony principal.
-          image: maxxa/k3s:latest  # Image Docker personnalisée contenant l'application Symfony.
-          ports:                   # Ports exposés par le container.
-            - containerPort: 80    # Le container Symfony écoute sur le port 80 (HTTP).
-          env:                     # Variables d'environnement pour configurer Symfony.
-            - name: DATABASE_URL   # URL de connexion à la base de données MySQL pour Symfony.
+          workingDir: /var/www/html
+
+---
+# -------------------- DEPLOIEMENT SYMFONY --------------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: symfony-app
+  labels:
+    app: symfony-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: symfony-app
+  template:
+    metadata:
+      labels:
+        app: symfony-app
+    spec:
+      # PLUS BESOIN des initContainers pour les migrations !
+      initContainers:
+        # Garder seulement l'attente de MySQL
+        - name: wait-for-mysql
+          image: mysql:latest
+          command:
+            - sh
+            - -c
+            - |
+              until mysqladmin ping -h mysql-service -u root -p$MYSQL_ROOT_PASSWORD --silent; do
+                echo "Waiting for MySQL..."
+                sleep 2
+              done
+              echo "MySQL is ready!"
+          env:
+            - name: MYSQL_ROOT_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: symfony-secrets
-                  key: database-url  # URL complète stockée dans le Secret.
-            - name: APP_ENV        # Environnement Symfony (dev, prod, test).
-              value: "prod"        # Valeur fixe : environnement de production.
-            - name: APP_SECRET     # Clé secrète Symfony pour le chiffrement et la sécurité.
+                  key: database_password
+      containers:
+        - name: symfony-app
+          image: maxxa/k3s:latest
+          ports:
+            - containerPort: 80
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: symfony-secrets
+                  key: database-url
+            - name: APP_ENV
+              value: "prod"
+            - name: APP_SECRET
               valueFrom:
                 secretKeyRef:
                   name: symfony-secrets
                   key: app-secret
-          # Health checks pour Symfony
-          livenessProbe:           # Sonde de vitalité : redémarre le container si l'application ne répond pas.
-            httpGet:               # Vérification HTTP pour tester si l'application fonctionne.
-              path: /article       # Endpoint HTTP à tester (doit retourner un code de succès).
-              port: 80             # Port sur lequel effectuer la requête HTTP.
-            initialDelaySeconds: 60 # Attendre 60 secondes après le démarrage avant la première vérification.
-            periodSeconds: 10      # Vérifier toutes les 10 secondes.
-            timeoutSeconds: 5      # Timeout de 5 secondes pour chaque vérification.
-            failureThreshold: 3    # Redémarrer le container après 3 échecs consécutifs.
-          readinessProbe:          # Sonde de disponibilité : retire le Pod du Service s'il n'est pas prêt.
-            httpGet:               # Vérification HTTP pour tester si l'application peut recevoir du trafic.
-              path: /article       # Endpoint HTTP à tester.
-              port: 80             # Port sur lequel effectuer la requête HTTP.
-            initialDelaySeconds: 30 # Attendre 30 secondes après le démarrage avant la première vérification.
-            periodSeconds: 5       # Vérifier toutes les 5 secondes.
-            timeoutSeconds: 5      # Timeout de 5 secondes pour chaque vérification.
-            failureThreshold: 3    # Retirer du Service après 3 échecs consécutifs.
+          livenessProbe:
+            httpGet:
+              path: /article
+              port: 80
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /article
+              port: 80
+            initialDelaySeconds: 30
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 3
           resources:
             requests:
               cpu: 100m
@@ -236,16 +264,15 @@ spec:                              # Section spécifiant la configuration du Dep
 
 ---
 # -------------------- SERVICE SYMFONY --------------------
-apiVersion: v1                     # Version de l'API Kubernetes utilisée pour les services (v1 est la version stable).
-kind: Service                      # Type de ressource : un Service, qui expose les Pods Symfony pour permettre l'accès externe.
+apiVersion: v1
+kind: Service
 metadata:
-  name: symfony-service            # Nom du Service Symfony (utilisé comme nom DNS interne).
-spec:                              # Section spécifiant la configuration du Service.
-  selector:                        # Définit quels Pods seront exposés par ce Service.
-    app: symfony-app               # Tous les Pods avec le label "app: symfony-app" seront inclus dans ce Service.
-  ports:                           # Configuration des ports du Service.
-    - port: 80                     # Port sur lequel le Service écoute à l'intérieur du cluster.
-      targetPort: 80               # Port du container vers lequel le trafic sera redirigé.
-      # Ajout d'un nodePort pour accès externe si nécessaire
-      nodePort: 30080              # Port exposé sur chaque nœud du cluster pour l'accès externe (range 30000-32767).
-  type: NodePort               # Type de Service : LoadBalancer expose le service à l'extérieur du cluster via un load balancer.
+  name: symfony-service
+spec:
+  selector:
+    app: symfony-app
+  ports:
+    - port: 80
+      targetPort: 80
+      nodePort: 30080
+  type: NodePort
