@@ -28,5 +28,5 @@ Vérifie que les pods sont bien créés : <br>
 
 📌 Notes <br>
 Ce déploiement ne crée pas de service exposé à l’extérieur du cluster.
-Par défaut Treafik, installé avec k3s, permet d'accéder à nos pods depuis l'ip du master
+Par défaut Treafik, installé avec k3s, permet d'accéder à nos pods depuis l'ip du master<br>
 Donc le nginx est accessible par l'IP du master

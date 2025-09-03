@@ -1,0 +1,34 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: springboot
+  namespace: argocd
+  annotations:
+    # Configuration Image Updater
+    argocd-image-updater.argoproj.io/image-list: |
+      symfony=maxxa/k3s:latest
+    argocd-image-updater.argoproj.io/write-back-method: git
+    argocd-image-updater.argoproj.io/git-branch: main
+    # Stratégie de mise à jour (latest, semver, digest)
+    argocd-image-updater.argoproj.io/vue.update-strategy: latest
+    argocd-image-updater.argoproj.io/api.update-strategy: latest
+    argocd-image-updater.argoproj.io/symfony.update-strategy: latest
+    # Fréquence de vérification (défaut: 2min)
+    argocd-image-updater.argoproj.io/vue.poll-interval: 1m
+    argocd-image-updater.argoproj.io/api.poll-interval: 1m
+    argocd-image-updater.argoproj.io/symfony.poll-interval: 1m
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/maxime67/manifest_k3s_sample
+    targetRevision: HEAD
+    path: 01-basics/spring-boot/
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: springboot
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
