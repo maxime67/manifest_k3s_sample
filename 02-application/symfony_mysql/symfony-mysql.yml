@@ -136,10 +136,15 @@ metadata:
   labels:
     app: symfony-migrations-job
 spec:
-  selector:
-    matchLabels:
-      app: symfony-migrations-job
+  # REMOVE this selector - Jobs don't need manual selectors
+  # selector:
+  #   matchLabels:
+  #     app: symfony-migrations-job
   template:
+    metadata:
+      # Add the app label here for your own identification
+      labels:
+        app: symfony-migrations-job
     spec:
       restartPolicy: OnFailure
       initContainers:
@@ -186,7 +191,6 @@ spec:
                   name: symfony-secrets
                   key: app-secret
           workingDir: /var/www/html
-
 ---
 # -------------------- DEPLOIEMENT SYMFONY --------------------
 apiVersion: apps/v1
