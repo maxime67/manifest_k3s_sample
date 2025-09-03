@@ -126,6 +126,7 @@ spec:
 
 ---
 # -------------------- JOB MIGRATIONS --------------------
+# -------------------- JOB MIGRATIONS --------------------
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -133,18 +134,14 @@ metadata:
   annotations:
     # Annotation pour forcer la re-création du Job à chaque déploiement
     argocd.argoproj.io/sync-options: Replace=true
-  labels:
-    app: symfony-migrations-job
 spec:
-  # REMOVE this selector - Jobs don't need manual selectors
-  # selector:
-  #   matchLabels:
-  #     app: symfony-migrations-job
+  selector:
+    matchLabels:
+      job: symfony-migrations-job
   template:
     metadata:
-      # Add the app label here for your own identification
       labels:
-        app: symfony-migrations-job
+        job: symfony-migrations-job
     spec:
       restartPolicy: OnFailure
       initContainers:
