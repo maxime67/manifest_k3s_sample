@@ -134,11 +134,11 @@ metadata:
     # Annotation pour forcer la re-création du Job à chaque déploiement
     argocd.argoproj.io/sync-options: Replace=true
   labels:
-    app: migration-job
+    app: symfony-migrations-job
 spec:
   selector:
     matchLabels:
-      app: migration-job
+      app: symfony-migrations-job
   template:
     spec:
       restartPolicy: OnFailure
