@@ -102,13 +102,13 @@ Ce projet propose des exemples pratiques pour déployer des applications sur K3s
 #### ClusterIP
 - **Chemin** : `03-services/clusterIp/`
 - **Description** : Utilisation du service ClusterIp
-- **Image** : `maxxa/demospringboot:latest`
+- **Image** : ` nginx:alpine`
 - **Service** : NodePort (port 80 → 8080)
 - **Réplicas** : 2 pods pour la haute disponibilité
 #### NodePort
 - **Chemin** : `03-services/clusterIp/`
 - **Description** : Application Spring Boot avec Tomcat
-- **Image** : `maxxa/demospringboot:latest`
+- **Image** : ` nginx:alpine`
 - **Service** : NodePort (port 80 → 8080)
 - **Réplicas** : 2 pods pour la haute disponibilité
 ## 🐳 Images Docker personnalisées
