@@ -143,7 +143,7 @@ spec:                              # Section spécifiant la configuration du Dep
 
         # 2. Exécuter les migrations Symfony avant le démarrage de l'application
         - name: symfony-migrations  # Deuxième init container : exécution des migrations Doctrine.
-          image: maxxa/k3s:latest   # Même image que l'application Symfony (contient PHP et les commandes Symfony).
+          image: symfony   # Même image que l'application Symfony (contient PHP et les commandes Symfony).
           command:                 # Commande pour exécuter les migrations Doctrine.
             - sh                   # Shell pour exécuter les commandes Symfony.
             - -c                   # Option pour exécuter une commande depuis une chaîne.
@@ -168,7 +168,7 @@ spec:                              # Section spécifiant la configuration du Dep
           workingDir: /var/www/html  # Répertoire de travail où se trouve l'application Symfony.
       containers:                  # Containers principaux du Pod.
         - name: symfony-app        # Nom du container Symfony principal.
-          image: maxxa/k3s:latest  # Image Docker personnalisée contenant l'application Symfony.
+          image: symfony  # Image Docker personnalisée contenant l'application Symfony.
           ports:                   # Ports exposés par le container.
             - containerPort: 80    # Le container Symfony écoute sur le port 80 (HTTP).
           env:                     # Variables d'environnement pour configurer Symfony.

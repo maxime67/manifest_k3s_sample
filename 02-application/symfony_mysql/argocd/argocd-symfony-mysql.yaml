@@ -1,9 +1,8 @@
-
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: test
-  namespace: argocd
+  name: symfony-mysql
+  namespace: symfony-app
   annotations:
     # Configuration Image Updater
     argocd-image-updater.argoproj.io/image-list: |
