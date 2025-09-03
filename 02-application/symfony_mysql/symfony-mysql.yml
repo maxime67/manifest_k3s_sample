@@ -216,4 +216,4 @@ spec:                              # Section spécifiant la configuration du Ser
       targetPort: 80               # Port du container vers lequel le trafic sera redirigé.
       # Ajout d'un nodePort pour accès externe si nécessaire
       nodePort: 30080              # Port exposé sur chaque nœud du cluster pour l'accès externe (range 30000-32767).
-  type: LoadBalancer               # Type de Service : LoadBalancer expose le service à l'extérieur du cluster via un load balancer.
+  type: NodePort               # Type de Service : LoadBalancer expose le service à l'extérieur du cluster via un load balancer.

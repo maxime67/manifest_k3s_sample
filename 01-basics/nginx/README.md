@@ -10,6 +10,8 @@ Contient la définition du déploiement Kubernetes avec :
 
 <li>La configuration des containers et du port exposé </li>
 
+<li>Un service "NodePort" permettant d'exposer les pods à partir de l'ip du master </li>
+
 🚀 Prérequis<br>
 Avant d’utiliser ce projet, assure-toi d’avoir :
 
@@ -26,7 +28,3 @@ Applique le manifeste Kubernetes avec la commande : <br>
 Vérifie que les pods sont bien créés : <br>
 <code> kubectl get pods </code>
 
-📌 Notes <br>
-Ce déploiement ne crée pas de service exposé à l’extérieur du cluster.
-Par défaut Treafik, installé avec k3s, permet d'accéder à nos pods depuis l'ip du master<br>
-Donc le nginx est accessible par l'IP du master
