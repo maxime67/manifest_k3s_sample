@@ -126,22 +126,14 @@ spec:
 
 ---
 # -------------------- JOB MIGRATIONS --------------------
-# -------------------- JOB MIGRATIONS --------------------
 apiVersion: batch/v1
 kind: Job
 metadata:
   name: symfony-migrations-job
   annotations:
-    # Annotation pour forcer la re-création du Job à chaque déploiement
     argocd.argoproj.io/sync-options: Replace=true
 spec:
-  selector:
-    matchLabels:
-      job: symfony-migrations-job
   template:
-    metadata:
-      labels:
-        job: symfony-migrations-job
     spec:
       restartPolicy: OnFailure
       initContainers:
@@ -188,6 +180,7 @@ spec:
                   name: symfony-secrets
                   key: app-secret
           workingDir: /var/www/html
+
 ---
 # -------------------- DEPLOIEMENT SYMFONY --------------------
 apiVersion: apps/v1
