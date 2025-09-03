@@ -15,7 +15,32 @@ data:                              # Section contenant les données sensibles en
   database_username: dXNlcg==      # Nom d'utilisateur de la base de données MySQL (encodé en base64).
   # my_database
   database_name: bXlfZGF0YWJhc2U=  # Nom de la base de données MySQL à créer (encodé en base64).
-
+---
+# -------------------- AUTOSCALE --------------------
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: symfony-autoscale
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: symfony-app
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80
 ---
 # -------------------- PERSISTENT VOLUME CLAIM --------------------
 apiVersion: v1                     # Version de l'API Kubernetes utilisée pour les PVC (v1 est la version stable).
@@ -111,7 +136,7 @@ metadata:
   labels:                          # Labels appliqués au Deployment lui-même (métadonnées).
     app: symfony-app               # Label pour identifier ce Deployment.
 spec:                              # Section spécifiant la configuration du Deployment.
-  replicas: 1                      # Nombre de Pods Symfony répliqués (2 pour la haute disponibilité et la répartition de charge).
+  replicas: 2                      # Nombre de Pods Symfony répliqués (2 pour la haute disponibilité et la répartition de charge).
   selector:                        # Définit quels Pods seront gérés par ce Deployment.
     matchLabels:                   # Condition de sélection des Pods.
       app: symfony-app             # Tous les Pods avec le label "app: symfony-app" seront gérés.
@@ -201,6 +226,13 @@ spec:                              # Section spécifiant la configuration du Dep
             periodSeconds: 5       # Vérifier toutes les 5 secondes.
             timeoutSeconds: 5      # Timeout de 5 secondes pour chaque vérification.
             failureThreshold: 3    # Retirer du Service après 3 échecs consécutifs.
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 200m
+              memory: 256Mi
 
 ---
 # -------------------- SERVICE SYMFONY --------------------
