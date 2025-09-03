@@ -5,7 +5,7 @@ metadata:
   name: spring-boot-test                 # Nom du Deployment. Sert d'identifiant unique dans le namespace.
 
 spec:                               # Section spécifiant la configuration du Deployment.
-  replicas: 9                       # Nombre de Pods répliqués que l'on souhaite (ici, 2 Pods identiques tourneront en parallèle).
+  replicas: 2                       # Nombre de Pods répliqués que l'on souhaite (ici, 2 Pods identiques tourneront en parallèle).
 
   selector:                         # Définit quels Pods seront gérés par ce Deployment.
     matchLabels:                    # Condition : les Pods doivent avoir les labels spécifiés ci-dessous.
