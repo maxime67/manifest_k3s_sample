@@ -106,25 +106,19 @@ kubectl get pods -l app=nginx-clusterip -o wide
 # Vérifier les logs des pods en temps réel
 kubectl logs -f deployment/nginx-clusterip-test
 
-# Depuis un pod de test, faire plusieurs requêtes
+# Depuis un pod de test
 kubectl run test-pod --image=busybox --rm -it --restart=Never -- sh
+
+# Effectuer plusieurs requêtes
 for i in $(seq 1 10); do wget -qO- http://nginx-clusterip-service; done
 ```
 
 ## 📌 Notes importantes
 
-- **Sécurité** : ClusterIP est le type de service le plus sécurisé car il n'expose pas l'application à l'extérieur
+- **Sécurité** : ClusterIP n'expose pas l'application à l'extérieur
 - **Performance** : Communication directe entre pods sans traverser de proxies externes
 - **DNS** : Le service est automatiquement enregistré dans le DNS interne du cluster
-- **Cas d'usage** : Idéal pour les services internes (bases de données, APIs internes, microservices)
-
-## 🔄 Comparaison avec les autres types de services
-
-| Type | Accessibilité | IP | Port | Usage |
-|------|---------------|----|----- |-------|
-| **ClusterIP** | Interne seulement | IP virtuelle interne | Port interne | Microservices, BDD |
-| NodePort | Interne + Externe | IP des nœuds | 30000-32767 | Développement, tests |
-| LoadBalancer | Externe | IP publique | Port standard | Production, exposition publique |
+- **Cas d'usage** : Idéal pour exposer les services internes (bases de données, APIs internes, microservices)
 
 ## 🛠️ Troubleshooting
 

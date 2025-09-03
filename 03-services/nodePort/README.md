@@ -1,8 +1,8 @@
-# Déploiement Nginx avec Service LoadBalancer sur Kubernetes
+# Déploiement Nginx avec Service NodePort sur Kubernetes
 
-Ce projet contient un fichier YAML permettant de déployer un serveur Nginx minimal (basé sur l'image nginx:alpine) avec un **Service LoadBalancer** dans un cluster Kubernetes.
+Ce projet contient un fichier YAML permettant de déployer un serveur Nginx minimal (basé sur l'image nginx:alpine) avec un **Service NodePort** dans un cluster Kubernetes.
 
-Le déploiement crée 2 réplicas avec un service accessible depuis l'extérieur via un load balancer externe.
+Le déploiement crée 2 réplicas avec un service accessible depuis l'extérieur du cluster via l'IP des nœuds.
 
 ## 📂 Contenu du projet
 
@@ -11,41 +11,25 @@ Contient la définition du déploiement Kubernetes avec :
 - 2 **pods** Nginx
 - Un sélecteur de labels
 - La configuration des containers et du port exposé
-- Un **Service LoadBalancer** permettant d'exposer les pods via un load balancer externe avec une IP publique
+- Un **Service NodePort** permettant d'exposer les pods à l'extérieur du cluster via l'IP des nœuds
 
-## 🔍 À propos du Service LoadBalancer
+## 🔍 À propos du Service NodePort
 
-Le **LoadBalancer** étend NodePort en provisionnant un load balancer externe (fourni par le cloud provider). Ses caractéristiques :
+Le **NodePort** étend ClusterIP en exposant le service sur un port statique sur chaque nœud du cluster. Ses caractéristiques :
 
-- **Portée** : Accessible depuis Internet avec une IP publique
-- **IP externe** : Le cloud provider assigne automatiquement une IP publique
-- **Load balancing** : Double niveau - externe (cloud) + interne (Kubernetes)
-- **Ports standard** : Utilise les ports standards (80, 443, etc.)
-- **Usage typique** : Production, exposition publique d'applications
-
-## ⚠️ Important - Prérequis spéciaux
-
-Le type **LoadBalancer** nécessite un environnement cloud ou un load balancer controller :
-
-### Environnements supportés :
-- **Cloud providers** : AWS (ELB), GCP (Cloud Load Balancer), Azure (Load Balancer), etc.
-- **On-premises** : MetalLB, HAProxy, F5, etc.
-- **K3s spécial** : Servicelb (load balancer intégré basique)
-
-### K3s avec Servicelb (par défaut) :
-K3s inclut un simple load balancer appelé **Servicelb** qui :
-- Utilise l'IP du nœud comme EXTERNAL-IP
-- Ne fournit pas de vraie IP publique
-- Convient pour les environnements de développement/test
+- **Portée** : Accessible depuis l'intérieur ET l'extérieur du cluster
+- **Port range** : Utilise la plage 30000-32767 par défaut
+- **IP d'accès** : IP de n'importe quel nœud du cluster
+- **Load balancing** : Distribue le trafic entre tous les pods disponibles
+- **Usage typique** : Développement, tests, exposition temporaire de services
 
 ## 🚀 Prérequis
 
 Avant d'utiliser ce projet, assure-toi d'avoir :
 
-- Un cluster K3s fonctionnel avec Servicelb activé (par défaut) OU
-- Un cluster cloud (AWS, GCP, Azure) OU
-- MetalLB ou autre load balancer controller installé
+- Un cluster K3s fonctionnel
 - kubectl installé
+- Accès réseau aux IPs des nœuds du cluster
 
 ## 📦 Déploiement
 
@@ -53,7 +37,7 @@ Avant d'utiliser ce projet, assure-toi d'avoir :
 
 2. Applique le manifeste Kubernetes avec la commande :
    ```bash
-   kubectl apply -f nginx-loadbalancer.yaml
+   kubectl apply -f nginx-nodeport.yaml
    ```
 
 3. Vérifie que les pods sont bien créés :
@@ -61,38 +45,35 @@ Avant d'utiliser ce projet, assure-toi d'avoir :
    kubectl get pods
    ```
 
-4. Vérifie que le service est créé et attend l'IP externe :
+4. Vérifie que le service est créé et note le port assigné :
    ```bash
    kubectl get services
    ```
 
 ## 🧪 Tests de fonctionnement
 
-### Vérification de l'IP externe
+### Récupération des informations de connexion
 
 ```bash
-# Surveiller l'attribution de l'IP externe (peut prendre quelques minutes)
-kubectl get svc nginx-loadbalancer-service -w
+# Récupérer le port NodePort assigné
+kubectl get svc nginx-nodeport-service
+# Exemple de sortie :
+# NAME                    TYPE       CLUSTER-IP    EXTERNAL-IP   PORT(S)        AGE
+# nginx-nodeport-service  NodePort   10.43.xx.xx   <none>        80:31234/TCP   1m
 
-# États possibles :
-# EXTERNAL-IP <pending>     -> En cours de provisionnement
-# EXTERNAL-IP <none>        -> Pas de load balancer disponible  
-# EXTERNAL-IP 34.102.136.X  -> IP publique assignée (cloud)
-# EXTERNAL-IP 192.168.1.10  -> IP du nœud (K3s/Servicelb)
+# Récupérer les IPs des nœuds
+kubectl get nodes -o wide
 ```
 
-### Accès via l'IP externe
+### Accès depuis l'extérieur du cluster
 
 ```bash
-# Une fois l'IP externe assignée
-EXTERNAL_IP=$(kubectl get svc nginx-loadbalancer-service -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
-echo "Service accessible sur : http://$EXTERNAL_IP"
+# Test avec curl (remplace NODE_IP et NODE_PORT par les valeurs réelles)
+curl http://NODE_IP:NODE_PORT
 
-# Test avec curl
-curl http://$EXTERNAL_IP
-
-# Test dans le navigateur
-echo "Ouvre ton navigateur sur : http://$EXTERNAL_IP"
+# Exemples concrets :
+curl http://192.168.1.100:31234
+curl http://192.168.1.101:31234  # Marche sur tous les nœuds même si le pod n'y est pas
 ```
 
 ### Accès depuis l'intérieur du cluster
@@ -100,182 +81,123 @@ echo "Ouvre ton navigateur sur : http://$EXTERNAL_IP"
 Le service reste accessible depuis l'intérieur comme un ClusterIP :
 
 ```bash
-# Test interne
-kubectl run test-pod --image=busybox --rm -it --restart=Never -- wget -qO- http://nginx-loadbalancer-service
+# Créer un pod temporaire pour les tests internes
+kubectl run test-pod --image=busybox --rm -it --restart=Never -- sh
+
+# Dans le pod de test
+wget -qO- http://nginx-nodeport-service
+wget -qO- http://nginx-nodeport-service:80
 ```
 
-## 🔧 Configuration selon l'environnement
+### Test avec un navigateur
 
-### K3s avec Servicelb (défaut)
+Tu peux également accéder à l'application via un navigateur web :
+```
+http://NODE_IP:NODE_PORT
+```
+
+## 📊 Vérification du load balancing
+
+```bash
+# Vérifier la distribution du trafic
+kubectl get pods -l app=nginx-nodeport -o wide
+
+# Effectuer plusieurs requêtes pour tester la répartition
+for i in $(seq 1 10); do
+  curl -s http://NODE_IP:NODE_PORT | grep "Welcome to nginx"
+done
+```
+
+## 🔧 Configuration avancée
+
+### Spécifier un NodePort fixe
+
+Par défaut, Kubernetes assigne automatiquement un port dans la plage 30000-32767. Tu peux spécifier un port fixe :
 
 ```yaml
-# Configuration basique - utilise l'IP des nœuds
 spec:
-  type: LoadBalancer
-  # Servicelb utilise automatiquement l'IP du nœud
+  type: NodePort
+  ports:
+    - port: 80
+      targetPort: 80
+      nodePort: 30080  # Port fixe (doit être dans la plage autorisée)
 ```
 
-### Cloud providers (AWS, GCP, Azure)
-
-```yaml
-# Exemple avec annotations cloud-spécifiques
-metadata:
-  annotations:
-    # AWS
-    service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
-    
-    # GCP  
-    cloud.google.com/load-balancer-type: "External"
-    
-    # Azure
-    service.beta.kubernetes.io/azure-load-balancer-internal: "false"
-```
-
-### Avec MetalLB
-
-```yaml
-# Configuration MetalLB avec pool d'IPs
-metadata:
-  annotations:
-    metallb.universe.tf/address-pool: production-public-ips
-```
-
-## 📊 Monitoring et debugging
-
-### Vérification du load balancer
+### Vérification des endpoints
 
 ```bash
-# Status détaillé du service
-kubectl describe svc nginx-loadbalancer-service
+# Voir quels pods sont associés au service
+kubectl get endpoints nginx-nodeport-service
 
-# Events liés au service
-kubectl get events --field-selector involvedObject.name=nginx-loadbalancer-service
-
-# Logs du controller de load balancer (K3s)
-kubectl logs -n kube-system -l app=servicelb
+# Description détaillée du service
+kubectl describe svc nginx-nodeport-service
 ```
 
-### Test de haute disponibilité
+## 📌 Notes importantes
 
-```bash
-# Supprimer un pod pour tester la résilience
-kubectl delete pod -l app=nginx-loadbalancer | head -1
+- **Firewall** : Assure-toi que le port NodePort est ouvert sur tes nœuds
+- **Sécurité** : NodePort expose le service publiquement - attention en production
+- **Haute disponibilité** : Le service marche même si un nœud tombe (tant qu'il reste des pods actifs)
+- **Performance** : Ajoute une couche de routage supplémentaire par rapport à ClusterIP
 
-# Le load balancer devrait automatiquement router vers le pod restant
-curl http://$EXTERNAL_IP
-```
+## 🔄 Comparaison avec les autres types de services
 
-## 📌 Notes importantes selon l'environnement
-
-### K3s/Servicelb
-- **IP externe** : IP du nœud master
-- **Limitations** : Pas de vraie IP publique, pas de health checks avancés
-- **Usage** : Développement, labs, réseaux internes
-
-### Cloud providers
-- **IP externe** : IP publique fournie par le cloud
-- **Avantages** : Health checks, SSL termination, DDoS protection
-- **Coût** : Facturation du load balancer cloud
-
-### On-premises (MetalLB)
-- **IP externe** : Pool d'IPs défini par l'administrateur
-- **Configuration** : Nécessite configuration réseau avancée
-- **Flexibilité** : Contrôle total sur le load balancing
-
-## 🔄 Comparaison complète des types de services
-
-| Type | Accessibilité | IP/Port | Gestion | Coût | Usage |
-|------|---------------|---------|---------|------|-------|
-| ClusterIP | Interne | IP virtuelle | Kubernetes | Gratuit | Microservices |
-| NodePort | Interne + Externe | IP nœuds:30000+ | Kubernetes | Gratuit | Développement |
-| **LoadBalancer** | Externe optimisé | IP publique | Cloud/MetalLB | Payant | Production |
+| Type | Accessibilité | IP/Port | Complexité | Usage |
+|------|---------------|---------|------------|-------|
+| ClusterIP | Interne seulement | IP virtuelle interne | Simple | Microservices |
+| **NodePort** | Interne + Externe | IP des nœuds:30000+ | Modérée | Développement, tests |
+| LoadBalancer | Externe optimisé | IP publique | Complexe | Production |
 
 ## 🛠️ Troubleshooting
 
-### EXTERNAL-IP reste en &lt;pending&gt;
+### Service non accessible depuis l'extérieur
 
 ```bash
-# Vérifier si un load balancer controller est disponible
-kubectl get pods -n kube-system | grep -E "servicelb|metallb|aws-load-balancer"
+# Vérifier le service et son port
+kubectl get svc nginx-nodeport-service
 
-# K3s : vérifier que servicelb est actif
-kubectl get pods -n kube-system -l app=servicelb
+# Vérifier que les pods fonctionnent
+kubectl get pods -l app=nginx-nodeport
 
-# Vérifier les events du service
-kubectl describe svc nginx-loadbalancer-service
+# Tester depuis l'intérieur du cluster
+kubectl run debug --image=busybox --rm -it -- wget -qO- http://nginx-nodeport-service
 ```
 
-### EXTERNAL-IP est &lt;none&gt;
-
-Cela indique qu'aucun load balancer controller n'est disponible :
+### Port déjà utilisé
 
 ```bash
-# Installer MetalLB (exemple)
-kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.13.7/config/manifests/metallb-native.yaml
-
-# Ou réinstaller K3s avec servicelb
-curl -sfL https://get.k3s.io | sh -
+# Si tu obtiens une erreur "port already in use"
+kubectl get svc --all-namespaces | grep NodePort
 ```
 
-### Service non accessible via l'IP externe
+### Problèmes de firewall
 
 ```bash
-# Vérifier les règles de firewall
-# Cloud : vérifier les security groups/firewalls
-# On-premises : vérifier iptables/firewalld
+# Sur les nœuds, vérifier si le port est ouvert
+ss -tlnp | grep :31234
+netstat -tlnp | grep :31234
 
-# Tester depuis l'intérieur du cluster d'abord
-kubectl run debug --image=busybox --rm -it -- wget -qO- http://nginx-loadbalancer-service
+# Avec iptables/firewall
+iptables -L | grep 31234
 ```
 
-## 🌐 Exemples d'accès selon l'environnement
+## 🌐 Accès depuis différents contextes
 
-### K3s local (Servicelb)
+### Depuis le master K3s
 ```bash
-# L'EXTERNAL-IP sera l'IP de ton nœud master
-curl http://192.168.1.100  # IP de ton master K3s
+curl http://localhost:NODE_PORT
+curl http://127.0.0.1:NODE_PORT
 ```
 
-### AWS EKS
+### Depuis le réseau local
 ```bash
-# L'EXTERNAL-IP sera un hostname AWS ELB
-curl http://a1b2c3d4e5f6-1234567890.us-west-2.elb.amazonaws.com
+curl http://MASTER_IP:NODE_PORT
+curl http://WORKER_IP:NODE_PORT
 ```
 
-### GCP GKE
+### Depuis Internet (si IPs publiques)
 ```bash
-# L'EXTERNAL-IP sera une IP publique Google Cloud
-curl http://34.102.136.180
-```
-
-### Azure AKS
-```bash
-# L'EXTERNAL-IP sera une IP publique Azure
-curl http://20.62.146.142
-```
-
-## 🔒 Configuration SSL/TLS (Avancé)
-
-Pour des déploiements en production avec HTTPS :
-
-```yaml
-apiVersion: v1
-kind: Service
-metadata:
-  name: nginx-loadbalancer-service
-  annotations:
-    # AWS - Termination SSL sur le load balancer
-    service.beta.kubernetes.io/aws-load-balancer-ssl-cert: "arn:aws:acm:us-east-1:123456789:certificate/12345"
-    service.beta.kubernetes.io/aws-load-balancer-backend-protocol: "http"
-spec:
-  type: LoadBalancer
-  ports:
-    - port: 443        # Port HTTPS
-      targetPort: 80   # Nginx reste en HTTP en interne
-      protocol: TCP
-    - port: 80         # Port HTTP (optionnel pour redirection)
-      targetPort: 80
-      protocol: TCP
+curl http://PUBLIC_IP:NODE_PORT
 ```
 
 ## 🧹 Nettoyage
@@ -283,80 +205,8 @@ spec:
 Pour supprimer le déploiement :
 
 ```bash
-kubectl delete -f nginx-loadbalancer.yaml
+kubectl delete -f nginx-nodeport.yaml
 
-# Vérifier que l'IP externe est bien libérée
+# Vérifier que le port NodePort est bien libéré
 kubectl get svc
-
-# Dans le cloud, le load balancer externe sera automatiquement supprimé
 ```
-
-## ⚡ Optimisations et bonnes pratiques
-
-### Health checks
-```yaml
-# Ajout de health checks dans le Deployment
-spec:
-  template:
-    spec:
-      containers:
-        - name: nginx
-          image: nginx:alpine
-          livenessProbe:
-            httpGet:
-              path: /
-              port: 80
-            initialDelaySeconds: 30
-            periodSeconds: 10
-          readinessProbe:
-            httpGet:
-              path: /
-              port: 80
-            initialDelaySeconds: 5
-            periodSeconds: 5
-```
-
-### Resource limits
-```yaml
-# Ajout de limites de ressources
-spec:
-  template:
-    spec:
-      containers:
-        - name: nginx
-          image: nginx:alpine
-          resources:
-            limits:
-              memory: "128Mi"
-              cpu: "100m"
-            requests:
-              memory: "64Mi"
-              cpu: "50m"
-```
-
-## 🏗️ Architecture complète avec LoadBalancer
-
-```
-Internet
-    ↓
-[Cloud Load Balancer] ← IP publique (34.102.136.X)
-    ↓
-[Kubernetes Service] ← LoadBalancer type
-    ↓
-[Pod Nginx 1] [Pod Nginx 2] ← Load balancing automatique
-```
-
-## 🎯 Cas d'usage recommandés
-
-### Utilise LoadBalancer pour :
-- ✅ Applications web publiques en production
-- ✅ APIs REST exposées sur Internet
-- ✅ Sites web avec trafic important
-- ✅ Applications nécessitant une IP publique stable
-- ✅ Services avec besoins de SSL/TLS termination
-
-### N'utilise PAS LoadBalancer pour :
-- ❌ Services internes (utilise ClusterIP)
-- ❌ Développement local (utilise NodePort)
-- ❌ Applications sans besoin d'accès externe
-- ❌ Environments où le coût est critique
