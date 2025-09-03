@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: mon-app-3-tier
+  name: test
   namespace: argocd
   annotations:
     # Configuration Image Updater
