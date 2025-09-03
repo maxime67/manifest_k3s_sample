@@ -4,7 +4,7 @@ Ce repository contient une collection d'exemples de déploiements Kubernetes opt
 
 ## 📋 Vue d'ensemble
 
-Ce projet propose des exemples pratiques pour déployer des applications sur K3s, avec une progression logique. Tous les exemples sont prêts à l'emploi.
+Ce projet propose des exemples pratiques pour déployer des applications sur K3s, avec une progression logique du simple au complexe. Tous les exemples sont prêts à l'emploi et documentés.
 
 ## 🏗️ Structure du projet
 
@@ -12,11 +12,12 @@ Ce projet propose des exemples pratiques pour déployer des applications sur K3s
 ├── 01-basics/                          # Exemples fondamentaux
 │   ├── nginx/                          # Déploiement Nginx simple
 │   ├── postgresql_memory/              # PostgreSQL avec stockage temporaire
-│   └── postgresql_persistent/          # PostgreSQL avec persistance
+│   ├── postgresql_persistent/          # PostgreSQL avec persistance
+│   ├── react/                          # Application React avec Nginx
+│   └── spring-boot/                    # Application Spring Boot
 └── 02-application/                     # Applications complètes
-    ├── 3_tier_demo/                   # App 3-tiers (Vue.js + Express + MongoDB)
-    └── symfony_mysql/                 # Application Symfony + MySQL
-
+    ├── 3_tier_demo/                    # App 3-tiers (Vue.js + Express + MongoDB)
+    └── symfony_mysql/                  # Application Symfony + MySQL
 ```
 
 ## 🎯 Exemples disponibles
@@ -28,49 +29,77 @@ Ce projet propose des exemples pratiques pour déployer des applications sur K3s
 - **Description** : Serveur web Nginx basique avec 2 réplicas
 - **Image** : `nginx:alpine`
 - **Commande** : `kubectl apply -f nginx.yaml`
+- **Accès** : Via l'IP du master (Traefik intégré)
 
 #### 🐘 PostgreSQL (Mémoire)
 - **Chemin** : `01-basics/postgresql_memory/`
-- **Description** : Base PostgreSQL avec stockage temporaire
+- **Description** : Base PostgreSQL avec stockage temporaire (emptyDir)
 - **Image** : `postgres:15`
+- **Service** : ClusterIP sur port 5432
 - **⚠️ Note** : Les données sont perdues au redémarrage du pod
 
 #### 🐘 PostgreSQL (Persistant)
 - **Chemin** : `01-basics/postgresql_persistent/`
 - **Description** : Base PostgreSQL avec stockage persistant (PVC)
 - **Image** : `postgres:15`
+- **Service** : ClusterIP sur port 5432
 - **✅ Avantage** : Conservation des données entre les redémarrages
+
+#### ⚛️ React Application
+- **Chemin** : `01-basics/react/`
+- **Description** : Application React servie par Nginx
+- **Image** : `maxxa/reacttest:latest`
+- **Service** : NodePort
+- **Commande de vérification** : `kubectl get logs` puis `curl <MASTER_IP>:<PORT>`
+
+#### ☕ Spring Boot Application
+- **Chemin** : `01-basics/spring-boot/`
+- **Description** : Application Spring Boot avec Tomcat
+- **Image** : `maxxa/demospringboot:latest`
+- **Service** : NodePort (port 80 → 8080)
+- **Réplicas** : 2 pods pour la haute disponibilité
 
 ### 02-application - Applications complètes
 
-#### 🏢 Application 3-Tiers
+#### 🏢 Application 3-Tiers (MongoDB Stack)
 - **Chemin** : `02-application/3_tier_demo/`
 - **Description** : Stack complète Vue.js + Express.js + MongoDB
+- **Namespace** : `mon-app`
 - **Images personnalisées** :
     - `maxxa/k3s_demo_vue:latest` - Frontend Vue.js
     - `maxxa/k3s_demo_api:latest` - API Express.js
+    - `mongo:7.0` - Base de données MongoDB
 - **Fonctionnalités** :
     - Build automatique du frontend Vue.js avec init containers
-    - Configuration Nginx pour SPA
-    - Persistance MongoDB avec PVC
+    - Configuration Nginx pour SPA (Single Page Application)
+    - Persistance MongoDB avec PVC (1Gi)
+    - Secrets pour chaîne de connexion MongoDB
+    - Health checks (liveness/readiness probes)
     - Exposition via NodePort (Frontend: 32000, API: 31000)
+    - Limites de ressources configurées
 
 #### 🎼 Symfony + MySQL
 - **Chemin** : `02-application/symfony_mysql/`
-- **Description** : Application Symfony avec base MySQL
+- **Description** : Application Symfony complète avec base MySQL
 - **Images** :
     - `maxxa/k3s:latest` - Application Symfony personnalisée
-    - `mysql:latest` - Base de données
+    - `mysql:latest` - Base de données MySQL
 - **Fonctionnalités** :
-    - Gestion des secrets Kubernetes
-    - Init containers pour migrations automatiques
-    - Health checks (liveness/readiness probes)
+    - Gestion des secrets Kubernetes (DATABASE_URL, APP_SECRET)
+    - Init containers pour :
+        - Attendre la disponibilité de MySQL
+        - Exécuter les migrations Doctrine automatiquement
+    - Health checks complets (liveness/readiness probes)
+    - PVC pour persistance MySQL (1Gi)
     - LoadBalancer avec NodePort 30080
+    - Variables d'environnement sécurisées via Secrets
 
 ## 🐳 Images Docker personnalisées
 
 Les images personnalisées sont disponibles sur Docker Hub : **[maxxa](https://hub.docker.com/repositories/maxxa)**
 
+- `maxxa/reacttest:latest` - Application React pour démo frontend
+- `maxxa/demospringboot:latest` - Application Spring Boot de démonstration
 - `maxxa/k3s_demo_vue:latest` - Frontend Vue.js pour la démo 3-tiers
 - `maxxa/k3s_demo_api:latest` - API Express.js pour la démo 3-tiers
 - `maxxa/k3s:latest` - Application Symfony personnalisée
@@ -79,7 +108,7 @@ Les images personnalisées sont disponibles sur Docker Hub : **[maxxa](https://h
 
 ### Installation K3s
 
-Pour installer K3s sur vos machines (Debian 12.7.1 testé sur Proxmox LXC) :
+Pour installer K3s sur vos machines (testé sur Debian 12.7.1 sur Proxmox LXC) :
 
 #### Sur le Master :
 ```bash
@@ -96,6 +125,12 @@ cat /var/lib/rancher/k3s/server/node-token
 curl -sfL https://get.k3s.io | K3S_URL=https://MASTER_IP:6443 K3S_TOKEN=YOUR_TOKEN INSTALL_K3S_EXEC="--kubelet-arg=feature-gates=KubeletInUserNamespace=true" sh -
 ```
 
+### Configuration kubectl
+```bash
+cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
+chown $USER:$USER ~/.kube/config
+```
+
 ### Prérequis logiciels
 - Cluster K3s fonctionnel
 - `kubectl` installé et configuré
@@ -110,7 +145,27 @@ kubectl apply -f nginx.yaml
 kubectl get pods
 ```
 
-### Exemple avancé - Application 3-tiers
+### Exemple avec base de données - PostgreSQL persistant
+```bash
+cd 01-basics/postgresql_persistent/
+kubectl apply -f postgresql.yaml
+kubectl get pods
+kubectl get pvc
+
+# Test de connexion
+kubectl exec -it <nom-pod-postgres> -- psql -U postgres
+```
+
+### Exemple application frontend - React
+```bash
+cd 01-basics/react/
+kubectl apply -f react.yaml
+kubectl get pods
+kubectl get services
+# Accès via http://<MASTER_IP>:<NODEPORT>
+```
+
+### Exemple avancé - Application 3-tiers complète
 ```bash
 cd 02-application/3_tier_demo/
 kubectl apply -f 3_tier.yml
@@ -118,22 +173,52 @@ kubectl apply -f 3_tier.yml
 # Vérification
 kubectl get pods -n mon-app
 kubectl get services -n mon-app
+kubectl get secrets -n mon-app
 
 # Accès à l'application
-# Frontend: http://NODE_IP:32000
-# API: http://NODE_IP:31000
+# Frontend: http://<NODE_IP>:32000
+# API: http://<NODE_IP>:31000/api
 ```
 
-## 🧪 Tests automatisés
-
-Chaque exemple inclut un script de test `test.sh` :
-
+### Exemple complexe - Symfony avec MySQL
 ```bash
-# Test avec namespace par défaut
-./test.sh
+cd 02-application/symfony_mysql/
+kubectl apply -f symfony-mysql.yml
 
-# Test avec namespace personnalisé et timeout
-./test.sh my-namespace 600
+# Vérification du déploiement
+kubectl get pods
+kubectl get services
+kubectl logs deployment/symfony-app
+
+# Accès à l'application
+# Application: http://<NODE_IP>:30080
+```
+
+## 🧪 Tests et validation
+
+### Tests de persistance PostgreSQL
+```bash
+# Créer des données de test
+kubectl exec -it <postgres-pod> -- psql -U postgres
+CREATE TABLE test_cluster (id SERIAL PRIMARY KEY, data TEXT);
+INSERT INTO test_cluster (data) VALUES ('test1'), ('test2');
+
+# Supprimer le pod et vérifier la persistance
+kubectl delete pod <postgres-pod>
+kubectl exec -it <new-postgres-pod> -- psql -U postgres
+SELECT * FROM test_cluster; # Les données doivent être présentes
+```
+
+### Tests d'applications web
+```bash
+# Test React
+curl http://<MASTER_IP>:<NODEPORT>
+
+# Test Spring Boot
+curl http://<MASTER_IP>:<NODEPORT>
+
+# Test Symfony
+curl http://<MASTER_IP>:30080/article
 ```
 
 ## 🔍 Surveillance et débuggage
@@ -152,13 +237,24 @@ journalctl -u k3s-agent -f    # Worker
 kubectl get nodes
 kubectl get pods --all-namespaces
 kubectl describe pod <pod-name>
+kubectl logs <pod-name>
+
+# Vérification des PVC
+kubectl get pvc
+kubectl describe pvc <pvc-name>
+
+# Vérification des secrets
+kubectl get secrets
+kubectl describe secret <secret-name>
 ```
 
 ### Accès aux applications
-- **Nginx** : Accessible via l'IP du master K3s (grâce à Traefik)
-- **PostgreSQL** : Accessible uniquement depuis l'intérieur du cluster
+- **Nginx** : Accessible via l'IP du master K3s (grâce à Traefik intégré)
+- **PostgreSQL** : Accessible uniquement depuis l'intérieur du cluster (ClusterIP)
+- **React** : Accessible via NodePort sur l'IP du master
+- **Spring Boot** : Accessible via NodePort sur l'IP du master
 - **App 3-tiers** : Frontend sur port 32000, API sur port 31000
-- **Symfony** : Accessible sur port 30080
+- **Symfony** : Accessible sur port 30080 (LoadBalancer/NodePort)
 
 ## 📚 Concepts Kubernetes illustrés
 
@@ -166,18 +262,33 @@ Ce repository démontre les concepts suivants :
 
 - **Deployments** : Gestion des réplicas et rolling updates
 - **Services** : Exposition réseau (ClusterIP, NodePort, LoadBalancer)
-- **Secrets** : Gestion sécurisée des données sensibles
-- **ConfigMaps** : Configuration des applications
-- **PVC/PV** : Stockage persistant
-- **Init Containers** : Initialisation et prérequis
-- **Health Checks** : Probes de santé (liveness/readiness)
-- **Namespaces** : Isolation des ressources
+- **Secrets** : Gestion sécurisée des données sensibles (mots de passe, chaînes de connexion)
+- **ConfigMaps** : Configuration des applications (configuration Nginx pour SPA)
+- **PVC/PV** : Stockage persistant pour bases de données
+- **Init Containers** : Initialisation et prérequis (attente de services, migrations)
+- **Health Checks** : Probes de santé (liveness/readiness) pour haute disponibilité
+- **Namespaces** : Isolation des ressources applicatives
+- **Resource Limits** : Limitation et demande de ressources (CPU/Mémoire)
+- **Volume Mounts** : Montage de volumes pour persistance
 
 ## 🛠️ Nettoyage
 
 ### Désinstallation d'un déploiement
 ```bash
 kubectl delete -f <fichier-yaml>
+
+# Pour les applications avec namespace
+kubectl delete -f <fichier-yaml>
+kubectl delete namespace <namespace-name>
+```
+
+### Nettoyage des ressources persistantes
+```bash
+# Supprimer les PVC (attention : perte de données)
+kubectl delete pvc <pvc-name>
+
+# Supprimer les secrets
+kubectl delete secret <secret-name>
 ```
 
 ### Désinstallation K3s
@@ -189,20 +300,46 @@ kubectl delete -f <fichier-yaml>
 /usr/local/bin/k3s-agent-uninstall.sh
 ```
 
+## 🔧 Troubleshooting
+
+### Erreur de certificat TLS
+```bash
+# Si vous rencontrez "tls: failed to verify certificate"
+cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
+chown $USER:$USER ~/.kube/config
+```
+
+### Pods en attente (Pending)
+```bash
+# Vérifier les ressources disponibles
+kubectl describe pod <pod-name>
+kubectl get nodes
+kubectl top nodes  # Si metrics-server est installé
+```
+
+### Problèmes de connectivité entre services
+```bash
+# Tester la résolution DNS interne
+kubectl exec -it <pod-name> -- nslookup <service-name>
+kubectl get svc
+```
+
 ## ⚠️ Notes importantes
 
-- **Sécurité** : Les mots de passe sont en dur dans les exemples, utilisez des Secrets Kubernetes appropriés.
-- **Images** : Certains exemples utilisent `:latest`, préférez des tags versionnés.
-- **Ressources** : Les limites de ressources sont configurées pour un environnement de développement.
-- **Stockage** : K3s utilise `local-path` par défaut pour les PVC.
+- **Sécurité** : Les mots de passe sont en dur dans certains exemples pour la démonstration. En production, utilisez des Secrets Kubernetes appropriés et des gestionnaires de secrets externes.
+- **Images** : Certains exemples utilisent `:latest`, préférez des tags versionnés en production.
+- **Ressources** : Les limites de ressources sont configurées pour un environnement de développement/test.
+- **Stockage** : K3s utilise `local-path` par défaut pour les PVC, approprié pour un cluster de test.
+- **Réseau** : Traefik est installé par défaut avec K3s et permet l'exposition automatique de certains services.
 
 ## 🤝 Contribution
 
 Pour contribuer à ce projet :
 1. Fork le repository
 2. Créez une branche pour votre fonctionnalité
-3. Testez vos modifications avec les scripts fournis
-4. Soumettez une Pull Request
+3. Testez vos modifications dans un environnement K3s
+4. Documentez vos exemples avec un README détaillé
+5. Soumettez une Pull Request avec une description claire
 
 ## 📖 Ressources utiles
 
@@ -210,5 +347,8 @@ Pour contribuer à ce projet :
 - [Documentation Kubernetes](https://kubernetes.io/docs/)
 - [Images Docker personnalisées](https://hub.docker.com/repositories/maxxa)
 - [Bonnes pratiques Kubernetes](https://kubernetes.io/docs/concepts/configuration/overview/)
+- [Traefik avec K3s](https://doc.traefik.io/traefik/providers/kubernetes-ingress/)
 
 ---
+
+*Ce repository est maintenu comme ressource éducative pour l'apprentissage de Kubernetes et K3s. Les exemples évoluent du simple au complexe pour faciliter la progression.*

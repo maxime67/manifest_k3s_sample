@@ -1,4 +1,4 @@
-# -------------------- DÉPLOIEMENT Nginx --------------------
+# -------------------- DÉPLOIEMENT Spring boot --------------------
 apiVersion: apps/v1                 # Version de l'API Kubernetes utilisée pour les déploiements (apps/v1 est la version stable actuelle).
 kind: Deployment                    # Type de ressource : un Deployment, qui gère la création, la mise à l'échelle et les mises à jour des Pods.
 metadata:
@@ -21,7 +21,7 @@ spec:                               # Section spécifiant la configuration du De
         - name: nginx               # Nom interne du container dans le Pod.
           image: maxxa/demospringboot:latest       # Image Docker utilisée.
           ports:                    # Définition des ports exposés par le container.
-            - containerPort: 8080     # Le container écoute sur le port 80 (port HTTP par défaut).
+            - containerPort: 8080     # Le container écoute sur le port 8080 (port HTTP par défaut).
 ---
 # -------------------- SERVICE NodePort --------------------
 apiVersion: v1
