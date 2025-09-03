@@ -23,7 +23,7 @@ spec:
   source:
     repoURL: https://github.com/maxime67/manifest_k3s_sample
     targetRevision: HEAD
-    path: 02-application/symfony_mysql/symfony-mysql.yml
+    path: 02-application/symfony_mysql/
   destination:
     server: https://kubernetes.default.svc
     namespace: symfony-app
