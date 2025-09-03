@@ -171,8 +171,8 @@ spec:
   template:
     metadata:
       labels:
-        app: nginx-nodeport
-        pod: pod2
+        app: nginx-nodeport  # Label commun pour le Service
+        pod: pod2            # Label spécifique pour identification
     spec:
       containers:
         - name: nginx
