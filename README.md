@@ -18,9 +18,10 @@ Ce projet propose des exemples pratiques pour déployer des applications sur K3s
 ├── 02-application/                     # Applications complètes
 │    └── symfony_mysql/                 # Application Symfony + MySQL
 └── 03-services/ 
-     ├── clusterIP/                     # Détails sur la mise en place d'un service ClusterIP
-     └── nodePort/                      # Détails sur la mise en place d'un service nodePort
-   
+│    ├── clusterIP/                     # Détails sur la mise en place d'un service ClusterIP
+│    └── nodePort/                      # Détails sur la mise en place d'un service nodePort
+└── 04-monitoring/
+     └── prometheus/                    # Exemple de mise en place d'une stack d'observabilité, de cluster et d'application
 ```
 
 ## 🎯 Exemples disponibles
@@ -73,12 +74,12 @@ Ce projet propose des exemples pratiques pour déployer des applications sur K3s
     - `mysql:latest` - Base de données MySQL
 - **Fonctionnalités** :
     - Gestion des secrets Kubernetes (DATABASE_URL, APP_SECRET)
+    - Job: Utilisé pour réaliser les migrations Doctrine 
     - Init containers pour :
         - Attendre la disponibilité de MySQL
-        - Exécuter les migrations Doctrine automatiquement
     - Health checks complets (liveness/readiness probes)
     - PVC pour persistance MySQL (1Gi)
-    - LoadBalancer avec NodePort 30080
+    - NodePort 30080
     - Variables d'environnement sécurisées via Secrets
 ### 03-services - Exemple d'utilisation de service
 #### ClusterIP
@@ -99,10 +100,12 @@ Ce projet propose des exemples pratiques pour déployer des applications sur K3s
 - **Chemin** : `04-monitoring/prometheus/`
 - **Description** : Exemple de déploiement d'une stack prometheus et grafana
 - **Image** : `grafana/grafana:latest` et `prom/prometheus:latest`
-- **Service** : 
-  - ServiceAccount, par défaut les pods n'ont aucuns droits d'accès à l'API Kubernetes, dans notre cas nécessaire pour lister/requêter les pods et accèder aux nouveaux pods crées
-  - DeamonSet, permet d'assurer la présence d'un pod sur tout ou partie des noeuds, dans notre cas un pod prometheus qui permet la remontée de data depuis tous les pods de tous les noeuds
+- **Service** : NodePort, utilisé pour exposer prometheus et grafana à l'exterieur du cluster
+- **DeamonSet**, permet d'assurer la présence d'un pod sur tout ou partie des noeuds, dans notre cas un pod prometheus qui permet la remontée de data depuis tous les pods de tous les noeuds
 - **ConfigMap** : Configuration prometheus.yml
+- **Service Account** : Permet de gérer des droits, dans certains cas nécessaire, sera par la suite associé à des pods. Dans notre cas, utilisé pour les pods prometheus afin d'accéder à l'api kubernetes
+- **Cluster role** : Définit des droits, sera associé à un service account par la suite
+- **Cluster role binding** : Associé un Service account à un Role Binding
 
 
 ## 🐳 Images Docker personnalisées
