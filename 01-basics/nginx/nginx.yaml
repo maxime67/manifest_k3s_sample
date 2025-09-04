@@ -27,7 +27,7 @@ kind: Service
 metadata:
   name: nginx-service
   annotations:
-    nginx-service prometheus.io/scrape: "true"
+    prometheus.io/scrape: "true"
     prometheus.io/port: "80"
     prometheus/io/path: "/"
 spec:
