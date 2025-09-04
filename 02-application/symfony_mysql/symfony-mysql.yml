@@ -128,9 +128,9 @@ spec:
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: symfony-migrations-job
-#  annotations:
-#    argocd.argoproj.io/sync-options: Replace=true
+  generateName: symfony-migrations-job-
+  annotations:
+    argocd.argoproj.io/sync-options: Delete=true
 spec:
   template:
     metadata:
