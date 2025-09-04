@@ -16,7 +16,6 @@ Ce projet propose des exemples pratiques pour déployer des applications sur K3s
 │   ├── react/                          # Application React avec Nginx
 │   └── spring-boot/                    # Application Spring Boot
 ├── 02-application/                     # Applications complètes
-│    ├── 3_tier_demo/                   # App 3-tiers (Vue.js + Express + MongoDB)
 │    └── symfony_mysql/                 # Application Symfony + MySQL
 └── 03-services/ 
      ├── clusterIP/                     # Détails sur la mise en place d'un service ClusterIP
@@ -66,23 +65,6 @@ Ce projet propose des exemples pratiques pour déployer des applications sur K3s
 
 ### 02-application - Applications complètes
 
-#### 🏢 Application 3-Tiers (MongoDB Stack)
-- **Chemin** : `02-application/3_tier_demo/`
-- **Description** : Stack complète Vue.js + Express.js + MongoDB
-- **Namespace** : `mon-app`
-- **Images personnalisées** :
-    - `maxxa/k3s_demo_vue:latest` - Frontend Vue.js
-    - `maxxa/k3s_demo_api:latest` - API Express.js
-    - `mongo:7.0` - Base de données MongoDB
-- **Fonctionnalités** :
-    - Build automatique du frontend Vue.js avec init containers
-    - Configuration Nginx pour SPA (Single Page Application)
-    - Persistance MongoDB avec PVC (1Gi)
-    - Secrets pour chaîne de connexion MongoDB
-    - Health checks (liveness/readiness probes)
-    - Exposition via NodePort (Frontend: 32000, API: 31000)
-    - Limites de ressources configurées
-
 #### 🎼 Symfony + MySQL
 - **Chemin** : `02-application/symfony_mysql/`
 - **Description** : Application Symfony complète avec base MySQL
@@ -104,22 +86,32 @@ Ce projet propose des exemples pratiques pour déployer des applications sur K3s
 - **Description** : Utilisation du service ClusterIp
 - **Image** : ` nginx:alpine`
 - **Service** : NodePort (port 80 → 8080)
-- **Réplicas** : 2 pods pour la haute disponibilité
+- **Réplicas** : 2 pods
 #### NodePort
 - **Chemin** : `03-services/clusterIp/`
 - **Description** : Application Spring Boot avec Tomcat
 - **Image** : ` nginx:alpine`
 - **Service** : NodePort (port 80 → 8080)
-- **Réplicas** : 2 pods pour la haute disponibilité
+- **Réplicas** : 2 pods 
+
+### 04-monitoring - Exemple de déploiement d'une stack prometheus et grafana
+#### prometheus
+- **Chemin** : `04-monitoring/prometheus/`
+- **Description** : Exemple de déploiement d'une stack prometheus et grafana
+- **Image** : `grafana/grafana:latest` et `prom/prometheus:latest`
+- **Service** : 
+  - ServiceAccount, par défaut les pods n'ont aucuns droits d'accès à l'API Kubernetes, dans notre cas nécessaire pour lister/requêter les pods et accèder aux nouveaux pods crées
+  - DeamonSet, permet d'assurer la présence d'un pod sur tout ou partie des noeuds, dans notre cas un pod prometheus qui permet la remontée de data depuis tous les pods de tous les noeuds
+- **ConfigMap** : Configuration prometheus.yml
+
+
 ## 🐳 Images Docker personnalisées
 
 Les images personnalisées sont disponibles sur Docker Hub : **[maxxa](https://hub.docker.com/repositories/maxxa)**
 
 - `maxxa/reacttest:latest` - Application React pour démo frontend
 - `maxxa/demospringboot:latest` - Application Spring Boot de démonstration
-- `maxxa/k3s_demo_vue:latest` - Frontend Vue.js pour la démo 3-tiers
-- `maxxa/k3s_demo_api:latest` - API Express.js pour la démo 3-tiers
-- `maxxa/k3s:latest` - Application Symfony personnalisée
+- `maxxa/k3s:latest` - Application Symfony simpliste, CRUD
 
 ## 🚀 Installation et prérequis
 
@@ -180,21 +172,6 @@ kubectl apply -f react.yaml
 kubectl get pods
 kubectl get services
 # Accès via http://<MASTER_IP>:<NODEPORT>
-```
-
-### Exemple avancé - Application 3-tiers complète
-```bash
-cd 02-application/3_tier_demo/
-kubectl apply -f 3_tier.yml
-
-# Vérification
-kubectl get pods -n mon-app
-kubectl get services -n mon-app
-kubectl get secrets -n mon-app
-
-# Accès à l'application
-# Frontend: http://<NODE_IP>:32000
-# API: http://<NODE_IP>:31000/api
 ```
 
 ### Exemple complexe - Symfony avec MySQL
@@ -270,7 +247,6 @@ kubectl describe secret <secret-name>
 - **PostgreSQL** : Accessible uniquement depuis l'intérieur du cluster (ClusterIP)
 - **React** : Accessible via NodePort sur l'IP du master
 - **Spring Boot** : Accessible via NodePort sur l'IP du master
-- **App 3-tiers** : Frontend sur port 32000, API sur port 31000
 - **Symfony** : Accessible sur port 30080 (LoadBalancer/NodePort)
 
 ## 📚 Concepts Kubernetes illustrés
@@ -368,4 +344,4 @@ Pour contribuer à ce projet :
 
 ---
 
-*Ce repository est maintenu comme ressource éducative pour l'apprentissage de Kubernetes et K3s. Les exemples évoluent du simple au complexe pour faciliter la progression.*
+*Ce repository est maintenu comme ressource éducative pour l'apprentissage de Kubernetes et K3s. Les exemples évoluent.*

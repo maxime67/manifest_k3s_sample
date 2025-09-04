@@ -6,14 +6,14 @@ metadata:
 ---
 # ================== SERVICE ACCOUNT ==================
 apiVersion: v1
-kind: ServiceAccount
+kind: ServiceAccount # Un Service qui sera utilisé par tous les pods prometheus
 metadata:
   name: prometheus
   namespace: monitoring
 ---
 # ================== CLUSTER ROLE ==================
 apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRole
+kind: ClusterRole # Défintit des droits spécifiques, associés au compte précédement crée, afin que les pods puisses posséder des droits necessaire  à leur fonctionnement
 metadata:
   name: prometheus
 rules:
