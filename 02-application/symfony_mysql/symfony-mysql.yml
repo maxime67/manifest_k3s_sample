@@ -133,6 +133,9 @@ metadata:
     argocd.argoproj.io/sync-options: Replace=true
 spec:
   template:
+    metadata:
+      labels:
+        app: symfony-migrations-job
     spec:
       restartPolicy: OnFailure
       initContainers:
