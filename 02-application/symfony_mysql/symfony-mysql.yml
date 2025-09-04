@@ -10,7 +10,6 @@ data:
   database_password: cGFzc3dvcmQ=
   database_username: dXNlcg==
   database_name: bXlfZGF0YWJhc2U=
-
 ---
 # -------------------- AUTOSCALE --------------------
 apiVersion: autoscaling/v2
@@ -144,7 +143,7 @@ spec:
             - sh
             - -c
             - |
-              until mysqladmin ping -h mysql-service -u root -p$MYSQL_ROOT_PASSWORD --silent; do
+              until mysqladmin ping -h mysql-service -u $MYSQL_USER -p$MYSQL_ROOT_PASSWORD --silent; do
                 echo "Waiting for MySQL..."
                 sleep 2
               done
@@ -155,6 +154,11 @@ spec:
                 secretKeyRef:
                   name: symfony-secrets
                   key: database_password
+            - name: MYSQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: symfony-secrets
+                  key: database_username
       containers:
         - name: symfony-migrations
           image: maxxa/k3s:latest
