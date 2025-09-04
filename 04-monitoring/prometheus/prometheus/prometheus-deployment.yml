@@ -118,4 +118,4 @@ spec:
   ports:
     - port: 3000
       targetPort: 3000
-      nodePort: 30030
+#      nodePort: 30030 # Non définie pour éviter les conflits
