@@ -3,10 +3,6 @@ apiVersion: apps/v1                 # Version de l'API Kubernetes utilisée pour
 kind: Deployment                    # Type de ressource : un Deployment, qui gère la création, la mise à l'échelle et les mises à jour des Pods.
 metadata:
   name: nginx-test                  # Nom du Deployment. Sert d'identifiant unique dans le namespace.
-  annotations:
-    prometheus.io/scrape: "true"
-    prometheus.io/port: "80"
-    prometheus.io/path: "/"
 spec:                               # Section spécifiant la configuration du Deployment.
   replicas: 2                       # Nombre de Pods répliqués que l'on souhaite (ici, 2 Pods Nginx identiques tourneront en parallèle).
 
@@ -16,6 +12,10 @@ spec:                               # Section spécifiant la configuration du De
 
   template:                         # Modèle de Pod à utiliser pour créer les réplicas.
     metadata:
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "80"
+        prometheus.io/path: "/"
       labels:                       # Labels appliqués aux Pods créés par ce Deployment.
         app: nginx                  # Ce label doit correspondre au "selector" plus haut pour que le Service et le Deployment fonctionnent correctement.
 
