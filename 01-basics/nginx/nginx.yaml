@@ -29,7 +29,7 @@ metadata:
   annotations:
     prometheus.io/scrape: "true"
     prometheus.io/port: "80"
-    prometheus/io/path: "/"
+    prometheus.io/path: "/"
 spec:
   type: NodePort
   selector:
