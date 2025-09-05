@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: simple-nginx
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/maxime67/manifest_k3s_sample
+    targetRevision: HEAD
+    path: 01-basics/nginx/
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: nginx
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

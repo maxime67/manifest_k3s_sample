@@ -1,0 +1,38 @@
+# -------------------- DÉPLOIEMENT Spring boot --------------------
+apiVersion: apps/v1                 # Version de l'API Kubernetes utilisée pour les déploiements (apps/v1 est la version stable actuelle).
+kind: Deployment                    # Type de ressource : un Deployment, qui gère la création, la mise à l'échelle et les mises à jour des Pods.
+metadata:
+  name: spring-boot-test                 # Nom du Deployment. Sert d'identifiant unique dans le namespace.
+
+spec:                               # Section spécifiant la configuration du Deployment.
+  replicas: 2                       # Nombre de Pods répliqués que l'on souhaite (ici, 2 Pods identiques tourneront en parallèle).
+
+  selector:                         # Définit quels Pods seront gérés par ce Deployment.
+    matchLabels:                    # Condition : les Pods doivent avoir les labels spécifiés ci-dessous.
+      app: springboot                    # Ici, tous les Pods avec le label "app: springboot" seront gérés par ce Deployment.
+
+  template:                         # Modèle de Pod à utiliser pour créer les réplicas.
+    metadata:
+      labels:                       # Labels appliqués aux Pods créés par ce Deployment.
+        app: springboot                  # Ce label doit correspondre au "selector" plus haut pour que le Service et le Deployment fonctionnent correctement.
+
+    spec:                           # Spécification du Pod (contenu du Pod).
+      containers:                   # Liste des containers qui tourneront dans chaque Pod.
+        - name: nginx               # Nom interne du container dans le Pod.
+          image: maxxa/demospringboot:latest       # Image Docker utilisée.
+          ports:                    # Définition des ports exposés par le container.
+            - containerPort: 8080     # Le container écoute sur le port 8080 (port HTTP par défaut).
+---
+# -------------------- SERVICE NodePort --------------------
+apiVersion: v1
+kind: Service
+metadata:
+  name: springboot-service
+spec:
+  type: NodePort
+  selector:
+    app: springboot
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
