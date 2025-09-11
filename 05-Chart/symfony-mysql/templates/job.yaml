@@ -1,5 +1,4 @@
 ---
-{{/*  Job Migrations */}}
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -10,7 +9,7 @@ spec:
   template:
     metadata:
       labels:
-        app: symfony-migrations-job
+        app: {{ .Release.Name }}-migrations-job
     spec:
       restartPolicy: OnFailure
       initContainers:
@@ -21,13 +20,13 @@ spec:
             - sh
             - -c
             - |
-              until mysqladmin ping -h mysql-service -u $MYSQL_USER -p$MYSQL_ROOT_PASSWORD --silent; do
+              until mysqladmin ping -h {{ .Release.Name }}-mysql -u $MYSQL_USER -p$MYSQL_PASSWORD --silent; do
                 echo "Waiting for MySQL..."
                 sleep 2
               done
               echo "MySQL is ready!"
           env:
-            - name: MYSQL_ROOT_PASSWORD
+            - name: MYSQL_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: {{ .Release.Name }}-secrets
@@ -45,6 +44,7 @@ spec:
             - -c
             - |
               echo "Starting Symfony migrations..."
+              echo "Database URL: $DATABASE_URL"
               php bin/console doctrine:database:create --if-not-exists
               php bin/console doctrine:migrations:migrate --no-interaction
               echo "Migrations completed successfully!"

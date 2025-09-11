@@ -14,6 +14,3 @@ secrets:
 mysql:
   port: 3306
   image: mysql:latest
-  password: "password"
-  database: "my_database"
-  storage: "1Gi"
