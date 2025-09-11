@@ -1,6 +1,6 @@
 symfony:
   image: maxxa/k3s:latest
-  replicas: 4
+  replicas: 2
 
 mysql:
   enabled: true
