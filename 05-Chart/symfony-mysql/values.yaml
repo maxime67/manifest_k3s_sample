@@ -2,7 +2,7 @@ symfony:
   image: maxxa/k3s:latest
   replicas: 2
 secrets:
-  databaseUrl: "mysql://user:password@mysql-service:3306/my_database"
+#  databaseUrl: "mysql://user:password@mysql-service:3306/my_database"
   appSecret: "abcdefghijk6lmnopqrstuvwxyz1234567890"
   databasePassword: "password"
   databaseUsername: "user"
