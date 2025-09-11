@@ -163,6 +163,7 @@ spec:
 #      nodePort: 30090 # Non définie pour éviter les conflits
 ---
 # ================== DEPLOYMENT GRAFANA ==================
+# Le lien entre prometheus et Grafana se fait via l'UI de grafana (Data Source), il n'y a pas de lien entre les 2 ressources au sein du déploiement, ce sont 2 ressources bien distinctes.
 apiVersion: apps/v1
 kind: Deployment
 metadata:
