@@ -68,4 +68,7 @@ spec:
           image: {{ .Values.symfony.image }}
           env:
             - name: DATABASE_URL
-              value: "mysql://root:{{ .Values.mysql.password }}@{{ .Release.Name }}-mysql:3306/{{ .Values.mysql.database }}"
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-secrets
+                  key: database-url
