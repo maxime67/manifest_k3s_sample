@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: symfony-helm
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/maxime67/manifest_k3s_sample
+    targetRevision: HEAD
+    path: 05-Chart/symfony-mysql
+    helm:
+      valueFiles:
+        - values.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: symfony-helm
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

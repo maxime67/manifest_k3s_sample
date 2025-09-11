@@ -1,0 +1,4 @@
+apiVersion: v2
+name: symfony-mysql
+description: Symfony with MySQL
+version: 0.1.0

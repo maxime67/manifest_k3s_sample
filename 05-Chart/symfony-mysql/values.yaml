@@ -1,0 +1,10 @@
+symfony:
+  image: maxxa/k3s:latest
+  replicas: 2
+
+mysql:
+  enabled: true
+  image: mysql:latest
+  password: "password"
+  database: "my_database"
+  storage: "1Gi"
