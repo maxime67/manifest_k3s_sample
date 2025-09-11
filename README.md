@@ -21,7 +21,9 @@ Ce projet propose des exemples pratiques pour déployer des applications sur K3s
 │    ├── clusterIP/                     # Détails sur la mise en place d'un service ClusterIP
 │    └── nodePort/                      # Détails sur la mise en place d'un service nodePort
 └── 04-monitoring/
-     └── prometheus/                    # Exemple de mise en place d'une stack d'observabilité, de cluster et d'application
+│    └── prometheus/                    # Exemple de mise en place d'une stack d'observabilité, de cluster et d'application  
+└── 05-Chart/
+     └── symfony-mysql/                 # Exemple d'utilisation de chart Helm
 ```
 
 ## 🎯 Exemples disponibles
@@ -107,6 +109,22 @@ Ce projet propose des exemples pratiques pour déployer des applications sur K3s
 - **Cluster role** : Définit des droits, sera associé à un service account par la suite
 - **Cluster role binding** : Associé un Service account à un Role Binding
 
+### 05-Chart - Exemple d'utilisation de chart Helm
+#### symfony-mysql
+- **Chemin** : `05-Chart/symfony-mysql/`
+- **Description** : Application Symfony complète avec base MySQL
+- **Images** :
+  - `maxxa/k3s:latest` - Application Symfony personnalisée
+  - `mysql:latest` - Base de données MySQL
+- **Fonctionnalités** :
+  - Gestion des secrets Kubernetes (DATABASE_URL, APP_SECRET)
+  - Job: Utilisé pour réaliser les migrations Doctrine
+  - Init containers pour :
+    - Attendre la disponibilité de MySQL
+  - Health checks complets (liveness/readiness probes)
+  - PVC pour persistance MySQL (1Gi)
+  - NodePort 30080
+  - Variables d'environnement sécurisées via Secrets
 
 ## 🐳 Images Docker personnalisées
 
