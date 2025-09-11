@@ -72,3 +72,19 @@ spec:
                 secretKeyRef:
                   name: {{ .Release.Name }}-secrets
                   key: database-url
+          livenessProbe:
+            httpGet:
+              path: /article
+              port: 80
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /article
+              port: 80
+            initialDelaySeconds: 30
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 3
