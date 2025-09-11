@@ -1,14 +1,4 @@
-{{- if .Values.mysql.enabled }}
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: {{ .Release.Name }}-mysql-pvc
-spec:
-  accessModes: [ReadWriteOnce]
-  resources:
-    requests:
-      storage: {{ .Values.mysql.storage }}
+{{/* Déploiement MYSQL */}}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -29,9 +19,25 @@ spec:
           image: {{ .Values.mysql.image }}
           env:
             - name: MYSQL_ROOT_PASSWORD
-              value: {{ .Values.mysql.password | quote }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-secrets
+                  key: db-password
+            - name: MYSQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-secrets
+                  key: db-user
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-secrets
+                  key: db-password
             - name: MYSQL_DATABASE
-              value: {{ .Values.mysql.database | quote }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-secrets
+                  key: db-name
           volumeMounts:
             - name: mysql-data
               mountPath: /var/lib/mysql
@@ -39,20 +45,10 @@ spec:
         - name: mysql-data
           persistentVolumeClaim:
             claimName: {{ .Release.Name }}-mysql-pvc
+---
 
 ---
-apiVersion: v1
-kind: Service
-metadata:
-  name: {{ .Release.Name }}-mysql
-spec:
-  selector:
-    app: {{ .Release.Name }}-mysql
-  ports:
-    - port: 3306
-  {{- end }}
-
----
+{{/* Déploiement Symfony */}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -73,16 +69,3 @@ spec:
           env:
             - name: DATABASE_URL
               value: "mysql://root:{{ .Values.mysql.password }}@{{ .Release.Name }}-mysql:3306/{{ .Values.mysql.database }}"
-
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: {{ .Release.Name }}-symfony
-spec:
-  type: NodePort
-  selector:
-    app: {{ .Release.Name }}-symfony
-  ports:
-    - port: 80
-      targetPort: 80

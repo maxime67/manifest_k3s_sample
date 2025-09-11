@@ -1,0 +1,25 @@
+---
+{{/*  Expose MYSQL port */}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-mysql
+spec:
+  selector:
+    app: {{ .Release.Name }}-mysql
+  ports:
+    - port: {{ .Values.mysql.port }}
+
+---
+{{/* Expose Symfony port */}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-symfony
+spec:
+  type: NodePort
+  selector:
+    app: {{ .Release.Name }}-symfony
+  ports:
+    - port: {{ .Values.symfony.service.external_port }}
+      targetPort: {{ .Values.symfony.pod.internal_port }}

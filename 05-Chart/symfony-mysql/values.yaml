@@ -1,6 +1,10 @@
 symfony:
   image: maxxa/k3s:latest
   replicas: 2
+  service:
+    external_port: 80
+  pod:
+    internal_port: 80
 secrets:
   appSecret: "abcdefghijk6lmnopqrstuvwxyz1234567890"
   databasePassword: "password"
@@ -8,7 +12,7 @@ secrets:
   databaseName: "my_database"
 
 mysql:
-  enabled: true
+  port: 3306
   image: mysql:latest
   password: "password"
   database: "my_database"
