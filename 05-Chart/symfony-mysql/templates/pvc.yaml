@@ -8,3 +8,7 @@ spec:
   resources:
     requests:
       storage: {{ .Values.mysql.storage }}
+  # Ajout de la storageClassName si nécessaire
+  {{- if .Values.mysql.storageClass }}
+  storageClassName: {{ .Values.mysql.storageClass }}
+  {{- end }}

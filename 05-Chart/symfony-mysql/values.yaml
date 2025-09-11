@@ -14,3 +14,5 @@ secrets:
 mysql:
   port: 3306
   image: mysql:latest
+  storage: "10Gi"
+  storageClass: ""
