@@ -4,16 +4,16 @@ apiVersion: apps/v1
 kind: DaemonSet # Ces pods seront présents sur tous les noeuds du cluster. Cela permet de remonter des stats système pour chacun des noeuds
 # Contrairement aux deployments qui peuvent avoir plusieurs instances sur le même noeud, le deamonSet ne possède qu'une instance par noeud, le strict nécessaire dans notre cas
 metadata:
-  name: {{ .Release.Name }}-node-exporter
+  name: node-exporter
   namespace: {{ .Values.namespace.name }}
 spec:
   selector:
     matchLabels:
-      app: {{ .Release.Name }}-node-exporter
+      app: node-exporter
   template:
     metadata:
       labels:
-        app: {{ .Release.Name }}-node-exporter
+        app: node-exporter
       annotations:
         prometheus.io/scrape: "true"
         prometheus.io/port: "9100"
