@@ -1,0 +1,6 @@
+nginx:
+  replica: 2
+  image: nginx:alpine
+  service:
+    external_port: 80
+    internal_port: 80

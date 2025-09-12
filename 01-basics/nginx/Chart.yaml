@@ -1,0 +1,4 @@
+apiVersion: v2
+name: nginx
+description: Simple nginx pod with service
+version: 0.1.0
