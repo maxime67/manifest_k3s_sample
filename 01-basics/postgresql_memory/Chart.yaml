@@ -1,0 +1,4 @@
+apiVersion: v2
+name: postgresql_memory
+description: Simple postgresql pod with service, without pvc
+version: 0.1.0
