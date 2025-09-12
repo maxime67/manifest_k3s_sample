@@ -11,17 +11,3 @@ spec:                              # Section spécifiant la configuration du PVC
   resources:                       # Ressources demandées pour le volume.
     requests:                      # Demande de ressources.
       storage: {{ .Values.prometheus.pvc.size }}                # Taille du stockage demandé.
-
----
-# -------------------- PERSISTENT VOLUME CLAIM FOR GRAFANA--------------------
-apiVersion: v1                     # Version de l'API Kubernetes utilisée pour les PVC (v1 est la version stable).
-kind: PersistentVolumeClaim        # Type de ressource : un PVC, qui demande un espace de stockage persistant.
-metadata:
-  name: {{ .Release.Name }}-grafana-pvc               # Nom du PVC (référencé dans le Deployment).
-
-spec:                              # Section spécifiant la configuration du PVC.
-  accessModes:                     # Modes d'accès au volume.
-    - ReadWriteOnce                # ReadWriteOnce : le volume peut être monté en lecture-écriture par un seul nœud à la fois.
-  resources:                       # Ressources demandées pour le volume.
-    requests:                      # Demande de ressources.
-      storage: {{ .Values.grafana.pvc.size }}                # Taille du stockage demandé.
