@@ -1,0 +1,6 @@
+springboot:
+  image: "maxxa/demospringboot:latest"
+  replica: 2
+  service:
+    external_port: 80
+    internal_port: 80

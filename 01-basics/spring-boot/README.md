@@ -6,7 +6,7 @@ Le déploiement crée 2 réplicas
 📂 Contenu du projet <br>
 Contient la définition du déploiement Kubernetes avec :
 
-<li>2 pods Tomcat</li>
+<li>2 pods Spring boot</li>
 
 <li>La configuration des containers et du port exposé </li>
 
@@ -16,12 +16,6 @@ Avant d’utiliser ce projet, assure-toi d’avoir :
 <li>Un cluster K3s fonctionnel</li>
 
 <li>kubectl installé</li>
-
-📦 Déploiement<br>
-Clone ou copie ce projet sur ta machine.
-
-Applique le manifeste Kubernetes avec la commande : <br>
-<code> kubectl apply -f springboot.yaml </code> <br>
 
 Vérifie que les pods sont bien créés : <br>
 <code> kubectl get pods </code>

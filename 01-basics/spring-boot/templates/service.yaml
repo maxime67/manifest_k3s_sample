@@ -1,0 +1,14 @@
+---
+# -------------------- SERVICE NodePort --------------------
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-springboot-service
+spec:
+  type: NodePort
+  selector:
+    app: {{ .Release.Name }}-springboot
+  ports:
+    - protocol: TCP
+      port: {{ .Values.springboot.service.external_port }}
+      targetPort: {{ .Values.springboot.service.internal_port }}

@@ -19,6 +19,9 @@ spec:
     repoURL: https://github.com/maxime67/manifest_k3s_sample
     targetRevision: HEAD
     path: 01-basics/spring-boot/
+    helm:
+      valueFiles:
+        - values.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: springboot

@@ -19,12 +19,6 @@ Avant d’utiliser ce projet, assure-toi d’avoir :
 
 <li>kubectl installé</li>
 
-📦 Déploiement<br>
-Clone ou copie ce projet sur ta machine.
-
-Applique le manifeste Kubernetes avec la commande : <br>
-<code> kubectl apply -f nginx.yaml </code> <br>
-
 Vérifie que les pods sont bien créés : <br>
 <code> kubectl get pods </code>
 

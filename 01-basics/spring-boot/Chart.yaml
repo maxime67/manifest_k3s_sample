@@ -1,0 +1,4 @@
+apiVersion: v2
+name: springboot
+description: Simple java pod with Springboot app on it
+version: 0.1.0
