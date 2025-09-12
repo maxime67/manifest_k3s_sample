@@ -6,7 +6,7 @@ metadata:
   name: {{ .Release.Name }}-nginx-service
   annotations:
     prometheus.io/scrape: "true"
-    prometheus.io/port: {{ .Values.nginx.service.external_port }}
+    prometheus.io/port: {{ .Values.nginx.service.external_port | quote }}
     prometheus.io/path: "/"
 spec:
   type: NodePort
