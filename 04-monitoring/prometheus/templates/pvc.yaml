@@ -4,6 +4,7 @@ apiVersion: v1                     # Version de l'API Kubernetes utilisée pour 
 kind: PersistentVolumeClaim        # Type de ressource : un PVC, qui demande un espace de stockage persistant.
 metadata:
   name: {{ .Release.Name }}-prometheus-pvc               # Nom du PVC (référencé dans le Deployment).
+  namespace: {{ .Values.namespace.name }}
 spec:                              # Section spécifiant la configuration du PVC.
   accessModes:                     # Modes d'accès au volume.
     - ReadWriteOnce                # ReadWriteOnce : le volume peut être monté en lecture-écriture par un seul nœud à la fois.
