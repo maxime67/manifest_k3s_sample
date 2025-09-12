@@ -1,0 +1,4 @@
+apiVersion: v2
+name: postgresql
+description: Simple postgresql pod with service, with pvc
+version: 0.1.0

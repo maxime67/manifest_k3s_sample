@@ -9,6 +9,9 @@ spec:
     repoURL: https://github.com/maxime67/manifest_k3s_sample
     targetRevision: HEAD
     path: 01-basics/postgresql_persistent/
+    helm:
+      valueFiles:
+        - values.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: postgresql-persistent
