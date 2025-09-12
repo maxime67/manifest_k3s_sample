@@ -13,6 +13,6 @@ secrets:
 
 mysql:
   port: 3306
-  image: bitnami/mysql:latest
+  image: mysql:latest
   storage: "2Gi"
   storageClass: ""
