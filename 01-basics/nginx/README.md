@@ -1,5 +1,5 @@
 <h1>Déploiement Nginx sur Kubernetes</h1>
-Ce projet contient un fichier YAML permettant de déployer un serveur Nginx minimal (basé sur l’image nginx:alpine) dans un cluster Kubernetes.
+Ce projet contient un Chart permettant de déployer un serveur Nginx minimal (basé sur l’image nginx:alpine) dans un cluster Kubernetes.
 
 Le déploiement crée 2 réplicas
 

@@ -3,7 +3,7 @@
 apiVersion: apps/v1                 # Version de l'API Kubernetes utilisée pour les déploiements (apps/v1 est la version stable actuelle).
 kind: Deployment                    # Type de ressource : un Deployment, qui gère la création, la mise à l'échelle et les mises à jour des Pods.
 metadata:
-  name: nginx-test                  # Nom du Deployment. Sert d'identifiant unique dans le namespace.
+  name: {{ .Release.Name }}-nginx                  # Nom du Deployment. Sert d'identifiant unique dans le namespace.
 spec:                               # Section spécifiant la configuration du Deployment.
   replicas: {{ .Values.nginx.replica }}                       # Nombre de Pods répliqués que l'on souhaite (ici, 2 Pods Nginx identiques tourneront en parallèle).
 
