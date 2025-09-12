@@ -11,8 +11,8 @@ metadata:
 spec:
   type: NodePort
   selector:
-    app: {{ .Realese.name }}-nginx
+    app: {{ .Release.Name }}-nginx
   ports:
     - protocol: TCP
-      port: {{ nginx.service.external_port }}
-      targetPort: {{ nginx.service.internal_port }}
+      port: {{ .Values.nginx.service.external_port }}
+      targetPort: {{ .Values.nginx.service.internal_port }}
