@@ -3,11 +3,11 @@
 apiVersion: v1                     # Version de l'API Kubernetes utilisée pour les services (v1 est la version stable).
 kind: Service                      # Type de ressource : un Service, qui expose les Pods et permet la communication réseau.
 metadata:
-  name: {{ .Release.name }}-postgres-service           # Nom du Service. Servira de nom DNS interne pour accéder à PostgreSQL depuis d'autres Pods.
+  name: {{ .Release.Name }}-postgres-service           # Nom du Service. Servira de nom DNS interne pour accéder à PostgreSQL depuis d'autres Pods.
 
 spec:                              # Section spécifiant la configuration du Service.
   selector:                        # Définit quels Pods seront exposés par ce Service.
-    app: {{ .Release.name }}-postgres                  # Tous les Pods avec le label "app: postgres" seront inclus dans ce Service (correspond au Deployment).
+    app: {{ .Release.Name }}-postgres                  # Tous les Pods avec le label "app: postgres" seront inclus dans ce Service (correspond au Deployment).
   ports:                           # Configuration des ports du Service.
     - port: {{ .Values.postgresql.service.external_port }}                   # Port sur lequel le Service écoute (port externe accessible par les autres Pods).
       targetPort: {{ .Values.postgresql.service.internal_port }}                   # Port du container vers lequel le trafic sera redirigé (doit correspondre au containerPort du Deployment).
