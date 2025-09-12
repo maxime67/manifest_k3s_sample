@@ -1,5 +1,5 @@
 <h1>Déploiement Nginx sur Kubernetes</h1>
-Ce projet contient un fichier YAML permettant de déployer un serveur Nginx contenant un projet react minimal (basé sur l’image nginx:stable-alpine) dans un cluster Kubernetes.
+Ce projet contient un CHart permettant de déployer un serveur Nginx contenant un projet react minimal (basé sur l’image nginx:stable-alpine) dans un cluster Kubernetes.
 
 Le déploiement crée 2 réplicas
 
@@ -16,22 +16,6 @@ Avant d’utiliser ce projet, assure-toi d’avoir :
 <li>Un cluster K3s fonctionnel</li>
 
 <li>kubectl installé</li>
-
-📦 Déploiement<br>
-Clone ou copie ce projet sur ta machine.
-
-Applique le manifeste Kubernetes avec la commande : <br>
-``` kubectl apply -f react.yaml ``` <br>
-
-Vérifie que les pods sont bien créés : <br>
-``` kubectl get pods ```
-
-Récupère le port assigné:<br>
-``` kubectl get logs ```
-<img src="./images/img.png">
-
-Accès au service:<br>
-``` curl <MASTER_IP>:<PORT> ```<br>
 
 📌 Notes <br>
 Ce déploiement ne crée pas de service exposé à l’extérieur du cluster.
