@@ -16,7 +16,7 @@ spec:
       labels:
         app: {{ .Release.Name }}-prometheus
     spec:
-      serviceAccountName: {{ .Release.Name }}prometheus # Utilisation du serviceAccount précédement crée
+      serviceAccountName: {{ .Release.Name }}-prometheus # Utilisation du serviceAccount précédement crée
       containers:
         - name: {{ .Release.Name}}-prometheus
           image: {{ .Values.prometheus.image }}
