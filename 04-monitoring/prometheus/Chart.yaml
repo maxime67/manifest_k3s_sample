@@ -1,0 +1,4 @@
+apiVersion: v2
+name: react
+description: Simple nginx pod with React app on it
+version: 0.1.0

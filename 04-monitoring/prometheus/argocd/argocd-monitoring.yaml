@@ -9,6 +9,9 @@ spec:
     repoURL: https://github.com/maxime67/manifest_k3s_sample
     targetRevision: HEAD
     path: 04-monitoring/prometheus
+    helm:
+      valueFiles:
+        - values.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: prometheus

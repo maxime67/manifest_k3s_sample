@@ -1,0 +1,60 @@
+
+---
+# ================== DEPLOYMENT PROMETHEUS ==================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-prometheus
+  namespace: {{ .Values.namespace.name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-prometheus
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-prometheus
+    spec:
+      serviceAccountName: {{ .Release.Name }}prometheus # Utilisation du serviceAccount précédement crée
+      containers:
+        - name: {{ .Release.Name}}-prometheus
+          image: {{ .Values.prometheus.image }}
+          ports:
+            - containerPort: {{ .Values.prometheus.service.internal_port }}
+          args:
+            - '--config.file=/etc/prometheus/prometheus.yml'
+            - '--storage.tsdb.path=/prometheus/'
+          volumeMounts:
+            - name: {{ .Release.Name }}-config-volume
+              mountPath: /etc/prometheus/
+      volumes:
+        - name: {{ .Release.Name }}-config-volume
+          configMap:
+            name: {{ .Release.Name }}-prometheus-config
+---
+# ================== DEPLOYMENT GRAFANA ==================
+# Le lien entre prometheus et Grafana se fait via l'UI de grafana (Data Source), il n'y a pas de lien entre les 2 ressources au sein du déploiement, ce sont 2 ressources bien distinctes.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-grafana
+  namespace: {{ .Values.namespace.name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-grafana
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-grafana
+    spec:
+      containers:
+        - name: {{ .Release.Name }}-grafana
+          image: {{ .Values.grafana.image }}
+          ports:
+            - containerPort: {{ .Values.grafana.service.internal_port }}
+          env:
+            - name: GF_SECURITY_ADMIN_PASSWORD
+              value: "admin"

@@ -1,0 +1,29 @@
+---
+# ================== SERVICE PROMETHEUS ==================
+apiVersion: v1
+kind: Service # Service exposant les pods prometheus à l'extérieur du cluster
+metadata:
+  name: {{ .Release.Name }}-prometheus-service
+  namespace: {{ .Values.namespace.name }}
+spec:
+  type: NodePort
+  selector:
+    app: {{ .Release.Name }}-prometheus
+  ports:
+    - port: {{ .Values.prometheus.service.internal_port }}
+      targetPort: {{ .Values.prometheus.service.external_port }}
+
+---
+# ================== SERVICE GRAFANA ==================
+apiVersion: v1
+kind: Service # Service exposant les pods grafana à l'exterieur du cluster
+metadata:
+  name: {{ .Release.Name }}-grafana-service
+  namespace: {{ .Values.namespace.name }}
+spec:
+  type: NodePort
+  selector:
+    app: {{ .Release.Name }}-grafana
+  ports:
+    - port: {{ .Values.grafana.service.external_port }}
+      targetPort: {{ .Values.grafana.service.internal_port }}

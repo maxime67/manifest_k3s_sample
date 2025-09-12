@@ -1,0 +1,14 @@
+---
+# ================== CLUSTER ROLE BINDING ==================
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding # Permet d'associer un clusterRole a un ServiceAccount
+metadata:
+  name: {{ .Release.Name }}prometheus
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ .Release.Name }}prometheus
+subjects:
+  - kind: ServiceAccount
+    name: {{ .Release.Name }}prometheus
+    namespace: {{ .Values.namespace.name }}
