@@ -18,11 +18,11 @@ spec:                               # Section spécifiant la configuration du De
         prometheus.io/port: "80"
         prometheus.io/path: "/"
       labels:                       # Labels appliqués aux Pods créés par ce Deployment.
-        app: nginx                  # Ce label doit correspondre au "selector" plus haut pour que le Service et le Deployment fonctionnent correctement.
+        app: {{ .Release.Name }}-nginx                   # Ce label doit correspondre au "selector" plus haut pour que le Service et le Deployment fonctionnent correctement.
 
     spec:                           # Spécification du Pod (contenu du Pod).
       containers:                   # Liste des containers qui tourneront dans chaque Pod.
-        - name: nginx               # Nom interne du container dans le Pod.
+        - name: {{ .Release.Name }}-nginx                # Nom interne du container dans le Pod.
           image: {{ .Values.nginx.image }}      # Image Docker utilisée. 'nginx:alpine' est une version légère de Nginx basée sur Alpine Linux.
           ports:                    # Définition des ports exposés par le container.
             - containerPort: 80     # Le container écoute sur le port 80 (port HTTP par défaut).
