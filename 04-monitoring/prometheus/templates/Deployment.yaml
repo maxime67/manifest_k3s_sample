@@ -28,7 +28,12 @@ spec:
           volumeMounts:
             - name: {{ .Release.Name }}-config-volume
               mountPath: /etc/prometheus/
+            - name: {{.Release.Name }}-data-volume
+              mountPath: /prometheus/
       volumes:
+        - name: {{ .Release.Name }}-data-volume # Nom du volume (référencé dans "volumeMounts").
+          persistentVolumeClaim: # Type de volume : PersistentVolumeClaim pour persister les données de façon durable.
+            claimName: {{ .Release.Name }}-prometheus-pvc  # Nom du PVC (PersistentVolumeClaim) qui sera créé séparément.
         - name: {{ .Release.Name }}-config-volume
           configMap:
             name: {{ .Release.Name }}-prometheus-config

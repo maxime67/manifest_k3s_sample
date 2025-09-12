@@ -2,6 +2,8 @@ node_exporter:
   image: prom/node-exporter:latest
   internal_port: 9100
 prometheus:
+  pvc:
+    size: "10Gi"
   replica: 1
   image: "prom/prometheus:latest"
   service:
@@ -10,6 +12,8 @@ prometheus:
 namespace:
   name: "monitoring"
 grafana:
+  pvc:
+    size: "10Gi"
   image: grafana/grafana:latest
   replica: 1
   service:
