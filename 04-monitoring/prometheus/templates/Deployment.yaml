@@ -18,7 +18,7 @@ spec:
     spec:
       serviceAccountName: {{ .Release.Name }}prometheus # Utilisation du serviceAccount précédement crée
       containers:
-        - name: {{ .Release.Name}}-prometheus
+        - name: prometheus
           image: {{ .Values.prometheus.image }}
           ports:
             - containerPort: {{ .Values.prometheus.service.internal_port }}
@@ -51,7 +51,7 @@ spec:
         app: {{ .Release.Name }}-grafana
     spec:
       containers:
-        - name: {{ .Release.Name }}-grafana
+        - name: grafana
           image: {{ .Values.grafana.image }}
           ports:
             - containerPort: {{ .Values.grafana.service.internal_port }}
