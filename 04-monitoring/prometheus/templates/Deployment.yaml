@@ -4,21 +4,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: prometheus
+  name: {{ .Release.Name }}-prometheus
   namespace: {{ .Values.namespace.name }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: prometheus
+      app: {{ .Release.Name }}-prometheus
   template:
     metadata:
       labels:
-        app: prometheus
+        app: {{ .Release.Name }}-prometheus
     spec:
       serviceAccountName: {{ .Release.Name }}prometheus # Utilisation du serviceAccount précédement crée
       containers:
-        - name: prometheus
+        - name: {{ .Release.Name}}-prometheus
           image: {{ .Values.prometheus.image }}
           ports:
             - containerPort: {{ .Values.prometheus.service.internal_port }}
@@ -38,20 +38,20 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: grafana
+  name: {{ .Release.Name }}-grafana
   namespace: {{ .Values.namespace.name }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: grafana
+      app: {{ .Release.Name }}-grafana
   template:
     metadata:
       labels:
-        app: grafana
+        app: {{ .Release.Name }}-grafana
     spec:
       containers:
-        - name: grafana
+        - name: {{ .Release.Name }}-grafana
           image: {{ .Values.grafana.image }}
           ports:
             - containerPort: {{ .Values.grafana.service.internal_port }}
