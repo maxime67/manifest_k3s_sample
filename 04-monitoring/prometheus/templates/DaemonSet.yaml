@@ -20,7 +20,7 @@ spec:
     spec:
       hostNetwork: true
       containers:
-        - name: {{ .Release.Name }}-node-exporter
+        - name: node-exporter
           image: {{ .Values.node_exporter.image }} # Image du nodeExporter prometheus: [https://github.com/prometheus/node_exporter]
           ports:
             - containerPort: 9100
