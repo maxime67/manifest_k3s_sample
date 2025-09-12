@@ -1,53 +1,53 @@
----
-# -------------------- DÉPLOIEMENT POSTGRESQL --------------------
-apiVersion: apps/v1                 # Version de l'API Kubernetes utilisée pour les déploiements (apps/v1 est la version stable actuelle).
-kind: Deployment                    # Type de ressource : un Deployment, qui gère la création, la mise à l'échelle et les mises à jour des Pods.
-metadata:
-  name: postgres                    # Nom du Deployment. Sert d'identifiant unique dans le namespace pour ce déploiement PostgreSQL.
-
-spec:                               # Section spécifiant la configuration du Deployment.
-  replicas: 1                       # Nombre de Pods répliqués que l'on souhaite (ici, 2 Pods PostgreSQL identiques tourneront en parallèle).
-
-  selector:                         # Définit quels Pods seront gérés par ce Deployment.
-    matchLabels:                    # Condition : les Pods doivent avoir les labels spécifiés ci-dessous.
-      app: postgres                 # Ici, tous les Pods avec le label "app: postgres" seront gérés par ce Deployment.
-
-  template:                         # Modèle de Pod à utiliser pour créer les réplicas.
-    metadata:
-      labels:                       # Labels appliqués aux Pods créés par ce Deployment.
-        app: postgres               # Ce label doit correspondre au "selector" plus haut pour que le Service et le Deployment fonctionnent correctement.
-
-    spec:                           # Spécification du Pod (contenu du Pod).
-      containers:                   # Liste des containers qui tourneront dans chaque Pod.
-        - name: postgres            # Nom interne du container dans le Pod.
-          image: postgres:15        # Image Docker utilisée. 'postgres:15' utilise la version 15 de PostgreSQL depuis Docker Hub.
-          env:                      # Variables d'environnement nécessaires pour configurer PostgreSQL.
-            - name: POSTGRES_USER   # Nom d'utilisateur de l'administrateur de la base de données.
-              value: "postgres"     # Valeur : "postgres" (utilisateur par défaut).
-            - name: POSTGRES_PASSWORD # Mot de passe pour l'utilisateur administrateur.
-              value: "password123"  # Valeur : "password123"
-            - name: POSTGRES_DB     # Nom de la base de données à créer automatiquement au démarrage.
-              value: "mydatabase"   # Valeur : "mydatabase" sera créée lors du premier démarrage.
-          ports:                    # Définition des ports exposés par le container.
-            - containerPort: 5432   # Le container écoute sur le port 5432 (port PostgreSQL par défaut).
-          volumeMounts:             # Points de montage pour persister les données.
-            - name: postgres-data   # Nom du volume à monter (doit correspondre au nom défini dans "volumes").
-              mountPath: /var/lib/postgresql_memory/data # Chemin dans le container où PostgreSQL stocke ses données.
-      volumes:                      # Définition des volumes utilisés par les containers.
-        - name: postgres-data       # Nom du volume (référencé dans "volumeMounts").
-          emptyDir: {}              # Type de volume : emptyDir crée un répertoire temporaire (⚠️ les données seront perdues si le Pod redémarre).
-
----
-# -------------------- SERVICE POSTGRESQL --------------------
-apiVersion: v1                     # Version de l'API Kubernetes utilisée pour les services (v1 est la version stable).
-kind: Service                      # Type de ressource : un Service, qui expose les Pods et permet la communication réseau.
-metadata:
-  name: postgres-service           # Nom du Service. Servira de nom DNS interne pour accéder à PostgreSQL depuis d'autres Pods.
-
-spec:                              # Section spécifiant la configuration du Service.
-  selector:                        # Définit quels Pods seront exposés par ce Service.
-    app: postgres                  # Tous les Pods avec le label "app: postgres" seront inclus dans ce Service (correspond au Deployment).
-  ports:                           # Configuration des ports du Service.
-    - port: 5432                   # Port sur lequel le Service écoute (port externe accessible par les autres Pods).
-      targetPort: 5432             # Port du container vers lequel le trafic sera redirigé (doit correspondre au containerPort du Deployment).
-  type: ClusterIP                  # Type de Service : ClusterIP rend le service accessible uniquement depuis l'intérieur du cluster Kubernetes.
+#---
+## -------------------- DÉPLOIEMENT POSTGRESQL --------------------
+#apiVersion: apps/v1                 # Version de l'API Kubernetes utilisée pour les déploiements (apps/v1 est la version stable actuelle).
+#kind: Deployment                    # Type de ressource : un Deployment, qui gère la création, la mise à l'échelle et les mises à jour des Pods.
+#metadata:
+#  name: postgres                    # Nom du Deployment. Sert d'identifiant unique dans le namespace pour ce déploiement PostgreSQL.
+#
+#spec:                               # Section spécifiant la configuration du Deployment.
+#  replicas: 1                       # Nombre de Pods répliqués que l'on souhaite (ici, 2 Pods PostgreSQL identiques tourneront en parallèle).
+#
+#  selector:                         # Définit quels Pods seront gérés par ce Deployment.
+#    matchLabels:                    # Condition : les Pods doivent avoir les labels spécifiés ci-dessous.
+#      app: postgres                 # Ici, tous les Pods avec le label "app: postgres" seront gérés par ce Deployment.
+#
+#  template:                         # Modèle de Pod à utiliser pour créer les réplicas.
+#    metadata:
+#      labels:                       # Labels appliqués aux Pods créés par ce Deployment.
+#        app: postgres               # Ce label doit correspondre au "selector" plus haut pour que le Service et le Deployment fonctionnent correctement.
+#
+#    spec:                           # Spécification du Pod (contenu du Pod).
+#      containers:                   # Liste des containers qui tourneront dans chaque Pod.
+#        - name: postgres            # Nom interne du container dans le Pod.
+#          image: postgres:15        # Image Docker utilisée. 'postgres:15' utilise la version 15 de PostgreSQL depuis Docker Hub.
+#          env:                      # Variables d'environnement nécessaires pour configurer PostgreSQL.
+#            - name: POSTGRES_USER   # Nom d'utilisateur de l'administrateur de la base de données.
+#              value: "postgres"     # Valeur : "postgres" (utilisateur par défaut).
+#            - name: POSTGRES_PASSWORD # Mot de passe pour l'utilisateur administrateur.
+#              value: "password123"  # Valeur : "password123"
+#            - name: POSTGRES_DB     # Nom de la base de données à créer automatiquement au démarrage.
+#              value: "mydatabase"   # Valeur : "mydatabase" sera créée lors du premier démarrage.
+#          ports:                    # Définition des ports exposés par le container.
+#            - containerPort: 5432   # Le container écoute sur le port 5432 (port PostgreSQL par défaut).
+#          volumeMounts:             # Points de montage pour persister les données.
+#            - name: postgres-data   # Nom du volume à monter (doit correspondre au nom défini dans "volumes").
+#              mountPath: /var/lib/postgresql_memory/data # Chemin dans le container où PostgreSQL stocke ses données.
+#      volumes:                      # Définition des volumes utilisés par les containers.
+#        - name: postgres-data       # Nom du volume (référencé dans "volumeMounts").
+#          emptyDir: {}              # Type de volume : emptyDir crée un répertoire temporaire (⚠️ les données seront perdues si le Pod redémarre).
+#
+#---
+## -------------------- SERVICE POSTGRESQL --------------------
+#apiVersion: v1                     # Version de l'API Kubernetes utilisée pour les services (v1 est la version stable).
+#kind: Service                      # Type de ressource : un Service, qui expose les Pods et permet la communication réseau.
+#metadata:
+#  name: postgres-service           # Nom du Service. Servira de nom DNS interne pour accéder à PostgreSQL depuis d'autres Pods.
+#
+#spec:                              # Section spécifiant la configuration du Service.
+#  selector:                        # Définit quels Pods seront exposés par ce Service.
+#    app: postgres                  # Tous les Pods avec le label "app: postgres" seront inclus dans ce Service (correspond au Deployment).
+#  ports:                           # Configuration des ports du Service.
+#    - port: 5432                   # Port sur lequel le Service écoute (port externe accessible par les autres Pods).
+#      targetPort: 5432             # Port du container vers lequel le trafic sera redirigé (doit correspondre au containerPort du Deployment).
+#  type: ClusterIP                  # Type de Service : ClusterIP rend le service accessible uniquement depuis l'intérieur du cluster Kubernetes.

@@ -1,0 +1,11 @@
+---
+# -------------------- SECRETS --------------------
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ .Release.Name }}-secrets
+type: Opaque
+stringData:
+  postgres_user: {{ .Values.secrets.postgres_user | quote }}
+  postgres_password: {{ .Values.secrets.postgres_password | quote }}
+  postgres_db: {{ .Values.secrets.postgres_db | quote }}

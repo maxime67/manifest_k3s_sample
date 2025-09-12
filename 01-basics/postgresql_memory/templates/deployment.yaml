@@ -1,0 +1,47 @@
+---
+# -------------------- DÉPLOIEMENT POSTGRESQL --------------------
+apiVersion: apps/v1                 # Version de l'API Kubernetes utilisée pour les déploiements (apps/v1 est la version stable actuelle).
+kind: Deployment                    # Type de ressource : un Deployment, qui gère la création, la mise à l'échelle et les mises à jour des Pods.
+metadata:
+  name: {{ .Release.Name }}-postgres                    # Nom du Deployment. Sert d'identifiant unique dans le namespace pour ce déploiement PostgreSQL.
+
+spec:                               # Section spécifiant la configuration du Deployment.
+  replicas: {{ .Values.postgresql.replica }}                       # Nombre de Pods répliqués que l'on souhaite (ici, 2 Pods PostgreSQL identiques tourneront en parallèle).
+
+  selector:                         # Définit quels Pods seront gérés par ce Deployment.
+    matchLabels:                    # Condition : les Pods doivent avoir les labels spécifiés ci-dessous.
+      app: {{ .Release.Name }}-postgres                 # Ici, tous les Pods avec le label "app: postgres" seront gérés par ce Deployment.
+
+  template:                         # Modèle de Pod à utiliser pour créer les réplicas.
+    metadata:
+      labels:                       # Labels appliqués aux Pods créés par ce Deployment.
+        app: {{ .Release.Name }}-postgres               # Ce label doit correspondre au "selector" plus haut pour que le Service et le Deployment fonctionnent correctement.
+
+    spec:                           # Spécification du Pod (contenu du Pod).
+      containers:                   # Liste des containers qui tourneront dans chaque Pod.
+        - name: {{ .Release.Name }}-postgres            # Nom interne du container dans le Pod.
+          image: {{ .Values.postgresql.image }}       # Image Docker utilisée. 'postgres:15' utilise la version 15 de PostgreSQL depuis Docker Hub.
+          env:                      # Variables d'environnement nécessaires pour configurer PostgreSQL.
+            - name: POSTGRES_USER   # Nom d'utilisateur de l'administrateur de la base de données.
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-secrets
+                  key: postgres_user
+            - name: POSTGRES_PASSWORD  # Mot de passe pour l'utilisateur administrateur.
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-secrets
+                  key: postgres_password
+            - name: POSTGRES_DB     # Nom de la base de données à créer automatiquement au démarrage.
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-secrets
+                  key: postgres_db
+          ports:                    # Définition des ports exposés par le container.
+            - containerPort: {{ .Values.postgresql.service.internal_port }}   # Le container écoute sur le port 5432 (port PostgreSQL par défaut).
+          volumeMounts:             # Points de montage pour persister les données.
+            - name: {{ .Release.Name }}-postgres-data   # Nom du volume à monter (doit correspondre au nom défini dans "volumes").
+              mountPath: /var/lib/postgresql_memory/data # Chemin dans le container où PostgreSQL stocke ses données.
+      volumes:                      # Définition des volumes utilisés par les containers.
+        - name: {{ .Release.Name }}-postgres-data       # Nom du volume (référencé dans "volumeMounts").
+          emptyDir: {}              # Type de volume : emptyDir crée un répertoire temporaire (⚠️ les données seront perdues si le Pod redémarre).

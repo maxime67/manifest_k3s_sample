@@ -1,0 +1,10 @@
+postgresql:
+  image: "postgres:15"
+  replica: 1
+  service:
+    external_port: 5432
+    internal_port: 5432
+secrets:
+  postgres_user: "postgre_user"
+  postgres_password: "postgres_password"
+  postgres_db: "postgres_db"
