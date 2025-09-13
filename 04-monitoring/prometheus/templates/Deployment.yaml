@@ -63,3 +63,10 @@ spec:
           env:
             - name: GF_SECURITY_ADMIN_PASSWORD
               value: "admin"
+          volumeMounts:
+            - mountPath: /var/lib/grafana
+              name: {{ .Release.Name }}-grafana-volume
+      volumes:
+        - name: {{ .Release.Name }}-grafana-volume # Nom du volume (référencé dans "volumeMounts").
+          persistentVolumeClaim: # Type de volume : PersistentVolumeClaim pour persister les données de façon durable.
+            claimName: {{ .Release.Name }}-grafana-pvc  # Nom du PVC (PersistentVolumeClaim) qui sera créé séparément.
