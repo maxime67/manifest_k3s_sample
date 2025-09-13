@@ -46,7 +46,7 @@ metadata:
   name: {{ .Release.Name }}-grafana
   namespace: {{ .Values.namespace.name }}
 spec:
-  replicas: 1
+  replicas: {{.Values.grafana.replica }}
   selector:
     matchLabels:
       app: {{ .Release.Name }}-grafana
