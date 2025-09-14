@@ -1,1 +1,3 @@
 /.idea/
+./k3s-documentation/node_modules
+/k3s-documentation/node_modules/
