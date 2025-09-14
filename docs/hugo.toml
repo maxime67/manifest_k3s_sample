@@ -1,0 +1,57 @@
+baseURL = 'https://maxime67.github.io/manifest_k3s_sample'
+languageCode = 'fr'
+title = 'K3s Deployment Samples - Documentation'
+theme = 'docsy'
+
+# Configuration du thème
+[params]
+github_repo = 'https://github.com/maxime67/manifest_k3s_sample'
+github_branch = 'main'
+edit_page = true
+search_enabled = true
+
+# Configuration de la navigation
+[menu]
+[[menu.main]]
+name = "Accueil"
+url = "/"
+weight = 10
+
+[[menu.main]]
+name = "Basics"
+url = "/basics/"
+weight = 20
+
+[[menu.main]]
+name = "Applications"
+url = "/applications/"
+weight = 30
+
+[[menu.main]]
+name = "Services"
+url = "/services/"
+weight = 40
+
+[[menu.main]]
+name = "Monitoring"
+url = "/monitoring/"
+weight = 50
+
+[[menu.main]]
+name = "Charts Helm"
+url = "/charts/"
+weight = 60
+
+# Configuration du markup
+[markup]
+[markup.goldmark]
+[markup.goldmark.renderer]
+unsafe = true
+[markup.highlight]
+style = "github"
+lineNos = true
+
+# Configuration des outputs
+[outputs]
+home = ["HTML", "RSS"]
+page = ["HTML"]
