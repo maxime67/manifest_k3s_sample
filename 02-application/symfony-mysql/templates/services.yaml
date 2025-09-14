@@ -23,3 +23,4 @@ spec:
   ports:
     - port: {{ .Values.symfony.service.external_port }}
       targetPort: {{ .Values.symfony.pod.internal_port }}
+      {{/* On ne spécifie pas le nodePort pour éviter les conflits entre les ports définies arbitrairements */}}
