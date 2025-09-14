@@ -20,11 +20,12 @@ Contient la définition du déploiement Kubernetes avec :
 
 ## 🔍 À propos du Service ClusterIP
 
-Le **ClusterIP** est le type de service par défaut dans Kubernetes. Ses caractéristiques :
+Le **ClusterIP** est le type de service par défaut dans Kubernetes.
 
+Ses caractéristiques :
 - **Portée** : Accessible uniquement depuis l'intérieur du cluster
 - **IP virtuelle** : Kubernetes assigne une IP virtuelle interne au service
-- **DNS interne** : Le service est accessible via son nom (`nginx-clusterip-service`)
+- **DNS interne** : Le service est accessible via son nom (`nginx-clusterip-service`) au sein du Chart
 - **Usage typique** : Communication entre microservices, bases de données internes
 
 ## 🚀 Prérequis
@@ -40,7 +41,7 @@ Avant d'utiliser ce projet, assure-toi d'avoir :
 
 2. Applique le manifeste Kubernetes avec la commande :
    ```bash
-   kubectl apply -f nginx-clusterip.yml
+   kubectl apply -f 03-services/clusterIp/nginx-clusterip.yml
    ```
 
 3. Vérifie que les pods sont bien créés :

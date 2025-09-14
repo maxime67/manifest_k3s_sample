@@ -2,6 +2,7 @@
 sidebar_label: 'Nginx'
 sidebar_position: 1
 ---
+import GitHubChart from '@site/src/components/GitHubChart';
 
 # Déploiement Nginx sur Kubernetes
 
@@ -11,11 +12,16 @@ Le déploiement crée 2 réplicas
 
 ## 📂 Contenu du projet
 
-Contient la définition du déploiement Kubernetes avec :
-
-- 2 pods Nginx
-- La configuration des containers et du port exposé
-- Un service "NodePort" permettant d'exposer les pods à partir de l'ip du master
+<GitHubChart
+repo="maxime67/manifest_k3s_sample"
+path="01-basics/nginx"
+files={[
+'Chart.yaml',
+'values.yaml',
+'templates/deployment.yaml',
+'templates/service.yaml',
+]}
+/>
 
 ## 🚀 Prérequis
 
@@ -23,6 +29,13 @@ Avant d'utiliser ce projet, assure-toi d'avoir :
 
 - Un cluster K3s fonctionnel
 - kubectl installé
+## Mise en place
+
+Une application ArgoCD te permet de déployer l'application:
+
+```bash
+kubectl apply -f 01-basics/nginx/argocd/argocd-nginx.yaml
+```
 
 Vérifie que les pods sont bien créés :
 

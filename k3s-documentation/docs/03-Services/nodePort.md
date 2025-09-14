@@ -20,8 +20,9 @@ Contient la définition du déploiement Kubernetes avec :
 
 ## 🔍 À propos du Service NodePort
 
-Le **NodePort** expose le service sur chaque nœud du cluster via un port statique. Ses caractéristiques :
+Le **NodePort** expose le service sur chaque nœud du cluster via un port statique.
 
+Ses caractéristiques :
 - **Portée** : Accessible depuis l'extérieur du cluster via `<NodeIP>:<NodePort>`
 - **Range de ports** : 30000-32767 (par défaut)
 - **IP publique** : Utilise l'IP publique/privée des nœuds
@@ -42,7 +43,7 @@ Avant d'utiliser ce projet, assure-toi d'avoir :
 
 2. Applique le manifeste Kubernetes avec la commande :
    ```bash
-   kubectl apply -f nginx-nodeport.yml
+   kubectl apply -f 03-services/clusterIp/nginx-nodeport.yml
    ```
 
 3. Vérifie que les pods sont bien créés :
@@ -117,5 +118,5 @@ spec:
 Pour supprimer le déploiement :
 
 ```bash
-kubectl delete -f nginx-nodeport.yml
+kubectl delete -f 03-services/clusterIp/nginx-nodeport.yml
 ```

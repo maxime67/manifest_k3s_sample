@@ -13,7 +13,6 @@ const config = {
   title: 'K3S démo',
   tagline: 'Dinosaurs are cool',
   favicon: 'img/favicon.ico',
-  plugins: [],
 
   // Future flags, see https://docusaurus.io/docs/api/docusaurus-config#future
   future: {

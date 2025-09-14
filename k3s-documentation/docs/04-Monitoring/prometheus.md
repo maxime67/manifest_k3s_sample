@@ -2,6 +2,7 @@
 sidebar_label: 'Prometheus + Grafana'
 sidebar_position: 1
 ---
+import GitHubChart from '@site/src/components/GitHubChart';
 
 # Stack d'Observabilité : Prometheus + Grafana
 
@@ -9,14 +10,24 @@ Ce projet contient un exemple de déploiement d'une stack complète d'observabil
 
 ## 📂 Contenu du projet
 
-Contient la définition du déploiement Kubernetes avec :
-
-- **Prometheus** : `prom/prometheus:latest` - Collecte et stockage des métriques
-- **Grafana** : `grafana/grafana:latest` - Visualisation et dashboards
-- **DaemonSet** : Collecte de métriques sur tous les nœuds
-- **ConfigMap** : Configuration `prometheus.yml`
-- **Service Account** : Gestion des permissions RBAC
-- **Services NodePort** : Exposition des interfaces web
+<GitHubChart
+repo="maxime67/manifest_k3s_sample"
+path="04-monitoring/prometheus"
+files={[
+'Chart.yaml',
+'values.yaml',
+'templates/ClusterRole.yaml',
+'templates/ClusterRoleBinding.yaml',
+'templates/ConfigMap.yaml',
+'templates/DaemonSet.yaml',
+'templates/Deployment.yaml',
+'templates/Namespace.yaml',
+'templates/pvc.yaml',
+'templates/secret.yaml',
+'templates/service.yaml',
+'templates/serviceAccount.yaml',
+]}
+/>
 
 ## 🚀 Prérequis
 
@@ -28,15 +39,16 @@ Avant d'utiliser ce projet, assure-toi d'avoir :
 
 ## 📦 Déploiement
 
-1. Applique le manifeste Kubernetes avec la commande :
-   ```bash
-   kubectl apply -f prometheus-grafana.yml
-   ```
+1. Une application ArgoCD te permet de déployer l'application:
+
+```bash
+kubectl apply -f 04-monitoring/prometheus/argocd/argocd-monitoring.yaml
+```
 
 2. Vérifie que les pods sont bien créés :
    ```bash
-   kubectl get pods
-   kubectl get services
+   kubectl get pods -n prometheus
+   kubectl get services -n prometheus
    ```
 
 3. Accès aux interfaces :
@@ -60,13 +72,20 @@ Avant d'utiliser ce projet, assure-toi d'avoir :
 ### **Grafana**
 - **Rôle** : Visualisation et création de dashboards
 - **Port** : 3000 (interne), NodePort (externe)
-- **Stockage** : PVC pour persistance des configurations
+- **Stockage** : PVC pour persistance des dashBoard
 - **Authentification** : admin/admin (par défaut)
 
-### **DaemonSet**
+### **DaemonSet - NodeExporter**
 - **Rôle** : Assure la présence d'un agent de collecte sur chaque nœud
 - **Fonction** : Remontée des métriques système et applicatives
 - **Couverture** : Tous les nœuds du cluster
+- **Spécificité** : Chaque noeud héberge strictement un pod
+- **Comportement par défaut** : 
+
+   -  1 pod par nœud, automatiquement
+   - Si un nouveau nœud rejoint le cluster, un pod y est automatiquement créé
+   - Si un nœud est supprimé, le pod correspondant est supprimé
+   - Si un pod crash, il est automatiquement recréé sur le même nœud
 
 ## ⚙️ Configuration
 
@@ -108,12 +127,11 @@ Configuration des targets et règles de collecte :
 ### **Métriques Applicatives**
 - Métriques custom des applications
 - Health checks et temps de réponse
-- Métriques business
 
 ### **Métriques Système**
 - Charge système
 - I/O disque et réseau
-- Processus et file descriptors
+- Processus
 
 ## 📊 Configuration Grafana
 
@@ -157,10 +175,10 @@ curl -X POST http://<NODE_IP>:<GRAFANA_PORT>/api/auth/keys \
 ### Prometheus ne collecte pas
 ```bash
 # Vérifier les logs
-kubectl logs deployment/prometheus
+kubectl logs deployment/prometheus -n prometheus
 
 # Vérifier la configuration
-kubectl get configmap prometheus-config -o yaml
+kubectl get configmap prometheus-config -n prometheus -o yaml
 
 # Tester les permissions RBAC
 kubectl auth can-i get nodes --as=system:serviceaccount:default:prometheus
@@ -169,48 +187,24 @@ kubectl auth can-i get nodes --as=system:serviceaccount:default:prometheus
 ### Grafana ne démarre pas
 ```bash
 # Vérifier les logs
-kubectl logs deployment/grafana
+kubectl logs deployment/grafana -n prometheus
 
 # Vérifier les PVC
-kubectl get pvc
+kubectl get pvc -n prometheus
 
 # Permissions sur le volume
-kubectl exec -it <grafana-pod> -- ls -la /var/lib/grafana
-```
-
-## 📈 Alerting (Optionnel)
-
-### Configuration Alertmanager
-```yaml
-# Ajouter à prometheus.yml
-alerting:
-  alertmanagers:
-    - static_configs:
-        - targets:
-          - alertmanager:9093
-```
-
-### Règles d'alerte exemple
-```yaml
-groups:
-  - name: k3s-alerts
-    rules:
-      - alert: HighCPUUsage
-        expr: cpu_usage > 80
-        for: 5m
-        annotations:
-          summary: "High CPU usage detected"
+kubectl exec -it <grafana-pod> -n prometheus -- ls -la /var/lib/grafana
 ```
 
 ## 🧹 Nettoyage
 
 ```bash
 # Supprimer la stack complète
-kubectl delete -f prometheus-grafana.yml
+kubectl delete -f 04-monitoring/prometheus/argocd/argocd-monitoring.yaml
 
 # Vérifier la suppression
-kubectl get pods
-kubectl get pvc
+kubectl get pods -n prometheus
+kubectl get pvc -n prometheus
 ```
 
 ## 📚 Ressources utiles

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-// Composant ultra-simple pour afficher un chart depuis GitHub
+// Composant GitHubChart - Style Minimaliste
 const GitHubChart = ({ repo, path, files }) => {
     const [chartFiles, setChartFiles] = useState({});
     const [loading, setLoading] = useState(true);
@@ -8,16 +8,15 @@ const GitHubChart = ({ repo, path, files }) => {
 
     useEffect(() => {
         fetchChartFiles();
-    }, [repo, path]);
+    }, [repo, path, files]);
 
     const fetchChartFiles = async () => {
         setLoading(true);
         const fileContents = {};
 
         try {
-            // Fetch tous les fichiers en parallèle
             const promises = files.map(async (file) => {
-                const url = `https://raw.githubusercontent.com/maxime67/manifest_k3s_sample/refs/heads/master/${path}/${file}`;
+                const url = `https://raw.githubusercontent.com/${repo}/refs/heads/documentation/${path}/${file}`;
                 const response = await fetch(url);
                 if (response.ok) {
                     const content = await response.text();
@@ -39,137 +38,71 @@ const GitHubChart = ({ repo, path, files }) => {
         }
     };
 
-    const copyToClipboard = (text) => {
-        navigator.clipboard.writeText(text);
+    const copyToClipboard = async (text) => {
+        try {
+            await navigator.clipboard.writeText(text);
+        } catch (err) {
+            console.error('Erreur de copie:', err);
+        }
     };
 
     if (loading) {
         return (
-            <div className="border rounded-lg p-6 bg-gray-50">
-                <div className="flex items-center">
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
-                    <span className="ml-2">Chargement depuis GitHub...</span>
+            <div className="my-8">
+                <div className="flex items-center justify-center py-12 text-gray-500">
+                    <div className="animate-spin rounded-full h-5 w-5 border-2 mr-3"></div>
+                    <span className="text-sm font-medium">Chargement depuis GitHub...</span>
                 </div>
             </div>
         );
     }
 
     return (
-        <div className="border rounded-lg overflow-hidden my-4">
-            {/* Header simple */}
-            <div className="bg-blue-50 px-4 py-3 border-b">
-                <div className="flex justify-between items-center">
-                    <h3 className="font-semibold text-blue-900">
-                        📦 {path.split('/').pop()}
-                    </h3>
-                    <a
-                        href={`https://github.com/${repo}/tree/main/${path}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-sm bg-blue-100 text-blue-700 px-3 py-1 rounded hover:bg-blue-200"
-                    >
-                        🔗 GitHub
-                    </a>
+        <div className="my-8 bg-white rounded-lg overflow-hidden">
+            {/* Onglets - Style navigateur */}
+            <div className="bg-blue-50 px-4 pt-2">
+                <div className="flex space-x-1 overflow-x-auto whitespace-nowrap scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+                    {files.map((file, index) => (
+                        <button
+                            key={file}
+                            onClick={() => setActiveFile(index)}
+                            className={`relative px-4 py-2.5 text-sm border-0 font-medium rounded-t-lg ${
+                                activeFile === index
+                                    ? 'bg-white text-gray-900 z-10 -mb-px'
+                                    : 'bg-blue-100 text-blue-700 hover:bg-blue-200 hover:text-blue-800'
+                            }`}
+                            style={activeFile === index ? { borderBottom: '1px solid white' } : {}}
+                        >
+                            {file}
+                        </button>
+                    ))}
                 </div>
+                <div className="bg-blue-50"></div>
             </div>
 
-            {/* Onglets fichiers */}
-            <div className="flex bg-gray-50 border-b overflow-x-auto">
-                {files.map((file, index) => (
-                    <button
-                        key={file}
-                        onClick={() => setActiveFile(index)}
-                        className={`px-4 py-2 text-sm whitespace-nowrap ${
-                            activeFile === index
-                                ? 'bg-white border-b-2 border-blue-500 text-blue-600'
-                                : 'text-gray-600 hover:text-gray-800'
-                        }`}
-                    >
-                        {file}
-                    </button>
-                ))}
-            </div>
-
-            {/* Contenu du fichier */}
-            <div className="bg-white">
-                <div className="flex justify-between items-center px-4 py-2 bg-gray-50 text-sm">
-                    <span className="font-mono">{files[activeFile]}</span>
+            {/* Barre d'actions */}
+            <div className="bg-blue-50 px-4 py-3 border-b border-gray-200">
+                <div className="flex justify-start">
                     <button
                         onClick={() => copyToClipboard(chartFiles[files[activeFile]] || '')}
-                        className="bg-gray-200 text-gray-700 px-3 py-1 rounded hover:bg-gray-300"
+                        className="inline-flex items-center px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors duration-200"
                     >
-                        📋 Copier
+                        <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                        </svg>
+                        Copier
                     </button>
                 </div>
-
-                <pre className="p-4 overflow-x-auto text-sm bg-gray-50">
-          <code>{chartFiles[files[activeFile]] || 'Chargement...'}</code>
-        </pre>
             </div>
 
-            {/* Footer avec commande install */}
-            <div className="bg-gray-100 px-4 py-2 text-sm">
-                <span className="text-gray-600">💡 Installation: </span>
-                <code className="bg-gray-200 px-2 py-1 rounded">
-                    helm install my-release ./{path}
-                </code>
+            {/* Contenu du code */}
+            <div className="relative">
+                <pre className="p-6 overflow-x-auto text-sm leading-relaxed bg-gray-900 text-gray-100 font-mono">
+                    <code>{chartFiles[files[activeFile]] || 'Chargement...'}</code>
+                </pre>
             </div>
         </div>
     );
 };
 
-// Utilisation dans tes docs MDX - ULTRA SIMPLE avec styling
-const App = () => {
-    return (
-        <div className="max-w-5xl mx-auto p-6">
-            <div className="text-center mb-8">
-                <h1 className="text-4xl font-bold text-gray-900 mb-4">📦 Mes Charts Helm</h1>
-                <p className="text-gray-600 text-lg">Documentation automatiquement synchronisée depuis GitHub</p>
-            </div>
-
-            {/* Chart Symfony-MySQL */}
-            <GitHubChart
-                repo="maxime67/manifest_k3s_sample"
-                path="05-Chart/symfony-mysql"
-                chartName="Symfony-MySQL"
-                description="Chart Helm pour déployer une application Symfony avec base de données MySQL"
-                files={[
-                    'Chart.yaml',
-                    'values.yaml',
-                    'templates/deployment.yaml',
-                    'templates/service.yaml',
-                    'templates/secret.yaml',
-                    'templates/mysql-deployment.yaml'
-                ]}
-            />
-
-            {/* Chart Monitoring */}
-            <GitHubChart
-                repo="maxime67/manifest_k3s_sample"
-                path="04-Monitoring"
-                chartName="Monitoring Stack"
-                description="Stack Prometheus + Grafana pour monitoring Kubernetes"
-                files={[
-                    'prometheus-grafana.yml',
-                    'README.md'
-                ]}
-            />
-
-            {/* Chart PostgreSQL */}
-            <GitHubChart
-                repo="maxime67/manifest_k3s_sample"
-                path="01-basics/postgresql_memory"
-                chartName="PostgreSQL Memory"
-                description="Base de données PostgreSQL en mémoire pour développement"
-                files={[
-                    'Chart.yaml',
-                    'values.yaml',
-                    'templates/deployment.yaml',
-                    'templates/service.yaml'
-                ]}
-            />
-        </div>
-    );
-};
-
-export default App;
+export default GitHubChart;
