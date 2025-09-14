@@ -7,11 +7,11 @@ cascade:
 ---
 
 
-{{< alert title="📁 Fichiers" >}}
+> **💡 Info**
 **Configuration disponible :**
 - [Voir les fichiers YAML](/files/)
 - [Repository GitHub](https://github.com/maxime67/manifest_k3s_sample)
-{{< /alert >}}
+
 
 # Déploiement Nginx sur Kubernetes
 Ce projet contient un CHart permettant de déployer un serveur Nginx contenant un projet react minimal (basé sur l’image nginx:stable-alpine) dans un cluster Kubernetes.

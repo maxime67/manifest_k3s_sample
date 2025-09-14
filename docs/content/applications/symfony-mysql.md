@@ -7,11 +7,11 @@ cascade:
 ---
 
 
-{{< alert title="📁 Fichiers" >}}
+> **💡 Info**
 **Configuration disponible :**
 - [Voir les fichiers YAML](/files/)
 - [Repository GitHub](https://github.com/maxime67/manifest_k3s_sample)
-{{< /alert >}}
+
 
 # Déploiement PostgreSQL sur Kubernetes
 
