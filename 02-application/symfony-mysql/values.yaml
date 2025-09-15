@@ -19,11 +19,11 @@ mysql:
 
 resources:
   limits:
+    memory: "2Gi"
+    cpu: "2"
+  requests:
     memory: "1Gi"
     cpu: "1"
-  requests:
-    memory: "512Mi"
-    cpu: "500m"
 securityContext:
   enabled: true
   runAsNonRoot: true
