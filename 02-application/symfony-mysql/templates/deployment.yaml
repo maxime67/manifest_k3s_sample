@@ -62,6 +62,12 @@ spec:
         - name: mysql-data
           persistentVolumeClaim:
             claimName: {{ .Release.Name }}-mysql-pvc
+        - name: mysql-data-0
+          persistentVolumeClaim:
+            claimName: {{ .Release.Name }}-mysql-pvc-0
+        - name: mysql-data-1
+          persistentVolumeClaim:
+            claimName: {{ .Release.Name }}-mysql-pvc-1
 ---
 
 ---
