@@ -22,7 +22,7 @@ spec:
           image: mysql:latest
           {{- if .Values.securityContext_pod }}
           securityContext:
-             {{- toYaml .Values.securityContext_pod | nindent 8 }}
+             {{- toYaml .Values.securityContext_pod | nindent 10 }}
           {{- end }}
           command:
             - sh
@@ -50,7 +50,7 @@ spec:
           image: {{ .Values.symfony.image }}
           {{- if .Values.securityContext_pod }}
           securityContext:
-             {{- toYaml .Values.securityContext_pod | nindent 8 }}
+             {{- toYaml .Values.securityContext_pod | nindent 10 }}
           {{- end }}
           command:
             - sh
