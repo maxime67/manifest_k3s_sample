@@ -123,3 +123,9 @@ spec:
             periodSeconds: 5
             timeoutSeconds: 5
             failureThreshold: 3
+          volumeMounts:
+            - name: temp-cache
+              mountPath: /var/www/html/
+      volumes:
+        - name: temp-cache
+          emptyDir: { }
