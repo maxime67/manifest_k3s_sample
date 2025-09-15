@@ -11,11 +11,19 @@ spec:
       labels:
         app: {{ .Release.Name }}-migrations-job
     spec:
+      {{- if .Values.securityContext }}
+      securityContext:
+        {{- toYaml .Values.securityContext | nindent 8 }}
+      {{- end }}
       restartPolicy: OnFailure
       initContainers:
         # Attendre que MySQL soit prêt
         - name: wait-for-mysql
           image: mysql:latest
+          {{- if .Values.securityContext_pod }}
+          securityContext:
+             {{- toYaml .Values.securityContext_pod | nindent 8 }}
+          {{- end }}
           command:
             - sh
             - -c
@@ -36,9 +44,14 @@ spec:
                 secretKeyRef:
                   name: {{ .Release.Name }}-secrets
                   key: db-user
+
       containers:
         - name: symfony-migrations
           image: {{ .Values.symfony.image }}
+          {{- if .Values.securityContext_pod }}
+          securityContext:
+             {{- toYaml .Values.securityContext_pod | nindent 8 }}
+          {{- end }}
           command:
             - sh
             - -c

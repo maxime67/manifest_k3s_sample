@@ -25,7 +25,13 @@ resources:
     cpu: "0.5"
     memory: "100Mi"
 securityContext:
+  enabled: true
   runAsNonRoot: true
   runAsUser: 1001
   runAsGroup: 1001
   fsGroup: 1001
+securityContext_pod:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL

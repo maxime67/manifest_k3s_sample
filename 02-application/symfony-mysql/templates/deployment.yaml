@@ -20,6 +20,10 @@ spec:
       {{- end }}
       containers:
         - name: mysql
+          {{- if .Values.securityContext_pod }}
+          securityContext:
+            {{- toYaml .Values.securityContext_pod | nindent 8 }}
+          {{- end }}
           image: {{ .Values.mysql.image }}
           env:
             - name: MYSQL_ROOT_PASSWORD
@@ -77,6 +81,10 @@ spec:
     {{- end }}
       containers:
         - name: symfony
+          {{- if .Values.securityContext_pod }}
+          securityContext:
+             {{- toYaml .Values.securityContext_pod | nindent 8 }}
+          {{- end }}
           image: {{ .Values.symfony.image }}
           env:
             - name: DATABASE_URL
