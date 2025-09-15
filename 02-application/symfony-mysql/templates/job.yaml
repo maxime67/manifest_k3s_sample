@@ -20,10 +20,10 @@ spec:
         # Attendre que MySQL soit prêt
         - name: wait-for-mysql
           image: mysql:latest
-          {{- if .Values.securityContext_pod }}
-          securityContext:
-             {{- toYaml .Values.securityContext_pod | nindent 12 }}
-          {{- end }}
+{{/*          {{- if .Values.securityContext_pod }}*/}}
+{{/*          securityContext:*/}}
+{{/*             {{- toYaml .Values.securityContext_pod | nindent 12 }}*/}}
+{{/*          {{- end }}*/}}
           command:
             - sh
             - -c
@@ -48,10 +48,10 @@ spec:
       containers:
         - name: symfony-migrations
           image: {{ .Values.symfony.image }}
-{{/*          {{- if .Values.securityContext_pod }}*/}}
-{{/*          securityContext:*/}}
-{{/*             {{- toYaml .Values.securityContext_pod | nindent 12 }}*/}}
-{{/*          {{- end }}*/}}
+          {{- if .Values.securityContext_pod }}
+          securityContext:
+             {{- toYaml .Values.securityContext_pod | nindent 12 }}
+          {{- end }}
           command:
             - sh
             - -c
