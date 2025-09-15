@@ -24,3 +24,8 @@ resources:
   requests:
     cpu: "0.5"
     memory: "100Mi"
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 1001
+  runAsGroup: 1001
+  fsGroup: 1001
