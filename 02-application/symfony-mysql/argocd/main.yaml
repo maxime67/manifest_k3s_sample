@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: symfony-helm
+  name: symfony-helm-
   namespace: argocd
 spec:
   project: default
