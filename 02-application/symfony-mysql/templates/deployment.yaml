@@ -125,7 +125,7 @@ spec:
             failureThreshold: 3
           volumeMounts:
             - name: temp-cache
-              mountPath: /var/www/html/
+              mountPath: /var/www/html/var/cache
       volumes:
         - name: temp-cache
-          emptyDir: { }
+          emptyDir: {}
