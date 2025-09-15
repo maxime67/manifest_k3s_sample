@@ -126,7 +126,7 @@ spec:
           volumeMounts:
             - name: temp-cache
               mountPath: /var/www/html/var/cache
-            - name: temp-logs
+            - name: temp-log
               mountPath: /var/www/html/var/log
       volumes:
         - name: temp-cache
