@@ -48,10 +48,10 @@ spec:
       containers:
         - name: symfony-migrations
           image: {{ .Values.symfony.image }}
-          {{- if .Values.securityContext_pod }}
-          securityContext:
-             {{- toYaml .Values.securityContext_pod | nindent 12 }}
-          {{- end }}
+{{/*          {{- if .Values.securityContext_pod }}*/}}
+{{/*          securityContext:*/}}
+{{/*             {{- toYaml .Values.securityContext_pod | nindent 12 }}*/}}
+{{/*          {{- end }}*/}}
           command:
             - sh
             - -c
