@@ -19,11 +19,11 @@ spec:
       initContainers:
         # Attendre que MySQL soit prêt
         - name: wait-for-mysql
-          image: mysql:latest
-{{/*          {{- if .Values.securityContext_pod }}*/}}
-{{/*          securityContext:*/}}
-{{/*             {{- toYaml .Values.securityContext_pod | nindent 12 }}*/}}
-{{/*          {{- end }}*/}}
+          image: bitnami/mysql:latest
+          {{- if .Values.securityContext_pod }}
+          securityContext:
+             {{- toYaml .Values.securityContext_pod | nindent 12 }}
+          {{- end }}
           command:
             - sh
             - -c
