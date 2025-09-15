@@ -76,8 +76,11 @@ spec:
           workingDir: /var/www/html
           volumeMounts:
             - name: temp-cache
-              mountPath: /var/www/html/
-
+              mountPath: /var/www/html/var/cache
+            - name: temp-log
+              mountPath: /var/www/html/var/log
       volumes:
         - name: temp-cache
-          emptyDir: {}
+          emptyDir: { }
+        - name: temp-log
+          emptyDir: { }
