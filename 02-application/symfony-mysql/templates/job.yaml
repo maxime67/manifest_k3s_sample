@@ -56,9 +56,9 @@ spec:
               echo "Set Env var"
 
 
-              php bin/console doctrine:database:create --if-not-exists --cache-dir=/tmp/symfony/cache
+              php bin/console doctrine:database:create --if-not-exists
               echo "Create database"
-              php bin/console doctrine:migrations:migrate --no-interaction --cache-dir=/tmp/symfony/cache
+              php bin/console doctrine:migrations:migrate --no-interaction
               echo "Migrations completed successfully!"
           env:
             - name: DATABASE_URL
@@ -76,8 +76,8 @@ spec:
           workingDir: /var/www/html
           volumeMounts:
             - name: temp-cache
-              mountPath: /tmp/symfony
+              mountPath: /var/www/html/
 
       volumes:
         - name: temp-cache
-          emptyDir: { }
+          emptyDir: {}
