@@ -16,13 +16,13 @@ spec:
     spec:
       {{- if .Values.securityContext }}
       securityContext:
-        {{- toYaml .Values.securityContext | nindent 8 }}
+        {{- toYaml .Values.securityContext | nindent 12 }}
       {{- end }}
       containers:
         - name: mysql
           {{- if .Values.securityContext_pod }}
           securityContext:
-            {{- toYaml .Values.securityContext_pod | nindent 10 }}
+            {{- toYaml .Values.securityContext_pod | nindent 12 }}
           {{- end }}
           image: {{ .Values.mysql.image }}
           env:
@@ -77,13 +77,13 @@ spec:
     spec:
     {{- if .Values.securityContext }}
       securityContext:
-        {{- toYaml .Values.securityContext | nindent 8 }}
+        {{- toYaml .Values.securityContext | nindent 12 }}
     {{- end }}
       containers:
         - name: symfony
           {{- if .Values.securityContext_pod }}
           securityContext:
-             {{- toYaml .Values.securityContext_pod | nindent 10 }}
+             {{- toYaml .Values.securityContext_pod | nindent 12 }}
           {{- end }}
           image: {{ .Values.symfony.image }}
           env:
