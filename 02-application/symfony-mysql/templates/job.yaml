@@ -50,10 +50,14 @@ spec:
               echo "Database URL: $DATABASE_URL"
               # Créer les répertoires dans le volume temporaire
               mkdir -p /tmp/symfony/cache /tmp/symfony/log
+              echo "mkdir /tmp/symfony/cache and /tmp/symfony/log"
               export SYMFONY_CACHE_DIR=/tmp/symfony/cache
               export SYMFONY_LOG_DIR=/tmp/symfony/log
+              echo "Set Env var"
+
 
               php bin/console doctrine:database:create --if-not-exists --cache-dir=/tmp/symfony/cache
+              echo "Create database"
               php bin/console doctrine:migrations:migrate --no-interaction --cache-dir=/tmp/symfony/cache
               echo "Migrations completed successfully!"
           env:
