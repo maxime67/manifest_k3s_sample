@@ -1,5 +1,5 @@
 react:
-  image: "maxxa/reacttest:latest"
+  image: "maxxa/k3s_sample_documentation"
   replica: 2
   service:
     external_port: 80

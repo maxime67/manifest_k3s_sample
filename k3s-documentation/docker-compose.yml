@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  k3s-documentation:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: k3s-docs
+    ports:
+      - "3000:8080"
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.k3s-docs.rule=Host(`docs.local`)"
+      - "traefik.http.services.k3s-docs.loadbalancer.server.port=8080"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Service optionnel pour le développement
+  k3s-documentation-dev:
+    image: bitnami/node:18
+    container_name: k3s-docs-dev
+    working_dir: /app
+    volumes:
+      - .:/app
+      - /app/node_modules
+    ports:
+      - "3001:3000"
+    command: ["yarn", "start", "--host", "0.0.0.0"]
+    profiles:
+      - dev
