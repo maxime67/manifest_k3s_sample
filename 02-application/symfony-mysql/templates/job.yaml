@@ -38,18 +38,23 @@ spec:
       containers:
         - name: symfony-migrations
           image: {{ .Values.symfony.image }}
-          {{- if .Values.securityContext_pod }}
+                {{- if .Values.securityContext_pod }}
           securityContext:
-             {{- toYaml .Values.securityContext_pod | nindent 12 }}
-          {{- end }}
+                   {{- toYaml .Values.securityContext_pod | nindent 12 }}
+                {{- end }}
           command:
             - sh
             - -c
             - |
               echo "Starting Symfony migrations..."
               echo "Database URL: $DATABASE_URL"
-              php bin/console doctrine:database:create --if-not-exists
-              php bin/console doctrine:migrations:migrate --no-interaction
+              # Créer les répertoires dans le volume temporaire
+              mkdir -p /tmp/symfony/cache /tmp/symfony/log
+              export SYMFONY_CACHE_DIR=/tmp/symfony/cache
+              export SYMFONY_LOG_DIR=/tmp/symfony/log
+
+              php bin/console doctrine:database:create --if-not-exists --cache-dir=/tmp/symfony/cache
+              php bin/console doctrine:migrations:migrate --no-interaction --cache-dir=/tmp/symfony/cache
               echo "Migrations completed successfully!"
           env:
             - name: DATABASE_URL
@@ -65,3 +70,10 @@ spec:
                   name: {{ .Release.Name }}-secrets
                   key: app-secret
           workingDir: /var/www/html
+          volumeMounts:
+            - name: temp-cache
+              mountPath: /tmp/symfony
+
+      volumes:
+        - name: temp-cache
+          emptyDir: { }
