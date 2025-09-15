@@ -25,7 +25,7 @@ spec:                               # Section spécifiant la configuration du De
           livenessProbe:
             httpGet:
               path: /
-              port: 80
+              port: {{ .Values.react.service.internal_port }}
             initialDelaySeconds: 60
             periodSeconds: 10
             timeoutSeconds: 5
@@ -33,7 +33,7 @@ spec:                               # Section spécifiant la configuration du De
           readinessProbe:
             httpGet:
               path: /
-              port: 80
+              port: {{ .Values.react.service.internal_port }}
             initialDelaySeconds: 30
             periodSeconds: 5
             timeoutSeconds: 5

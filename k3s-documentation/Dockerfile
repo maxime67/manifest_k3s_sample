@@ -31,7 +31,7 @@ COPY --from=builder /app/build /opt/bitnami/nginx/html
 COPY docker/nginx.conf /opt/bitnami/nginx/conf/nginx.conf
 
 # Exposition du port
-EXPOSE 8080
+EXPOSE 80
 
 # L'image Bitnami Nginx démarre automatiquement
 # Pas besoin de CMD spécifique
