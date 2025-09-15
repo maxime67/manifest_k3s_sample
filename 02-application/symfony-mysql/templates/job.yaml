@@ -19,31 +19,21 @@ spec:
       initContainers:
         # Attendre que MySQL soit prêt
         - name: wait-for-mysql
-          image: bitnami/mysql:latest
-          {{- if .Values.securityContext_pod }}
+          image: busybox:1.35
+                {{- if .Values.securityContext_pod }}
           securityContext:
-             {{- toYaml .Values.securityContext_pod | nindent 12 }}
-          {{- end }}
+                   {{- toYaml .Values.securityContext_pod | nindent 12 }}
+                {{- end }}
           command:
             - sh
             - -c
             - |
-              until mysqladmin ping -h {{ .Release.Name }}-mysql -u $MYSQL_USER -p$MYSQL_PASSWORD --silent; do
-                echo "Waiting for MySQL..."
-                sleep 2
+              echo "Waiting for MySQL to be ready..."
+              until nc -z {{ .Release.Name }}-mysql {{ .Values.mysql.port }}; do
+                echo "MySQL is not ready yet, waiting 5 seconds..."
+                sleep 5
               done
               echo "MySQL is ready!"
-          env:
-            - name: MYSQL_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Release.Name }}-secrets
-                  key: db-password
-            - name: MYSQL_USER
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Release.Name }}-secrets
-                  key: db-user
 
       containers:
         - name: symfony-migrations
