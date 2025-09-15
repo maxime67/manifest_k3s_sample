@@ -16,3 +16,11 @@ mysql:
   image: mysql:latest
   storage: "2Gi"
   storageClass: ""
+
+resources:
+  limits:
+    cpu: "1"
+    memory: "200Mi"
+  requests:
+    cpu: "0.5"
+    memory: "100Mi"
