@@ -1,65 +1,40 @@
 {{/* Déploiement MYSQL */}}
 ---
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: batch/v1
+kind: Job
 metadata:
-  name: {{ .Release.Name }}-mysql
+  name: {{ .Release.Name }}-migrations-job
+  annotations:
+    argocd.argoproj.io/sync-options: Delete=true
 spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: {{ .Release.Name }}-mysql
   template:
     metadata:
       labels:
-        app: {{ .Release.Name }}-mysql
+        app: {{ .Release.Name }}-migrations-job
     spec:
       {{- if .Values.securityContext }}
       securityContext:
         {{- toYaml .Values.securityContext | nindent 12 }}
       {{- end }}
-      containers:
-        - name: mysql
+      restartPolicy: OnFailure
+      initContainers:
+        # Attendre que MySQL soit prêt
+        - name: wait-for-mysql
+          image: busybox:1.35
           {{- if .Values.securityContext_pod }}
           securityContext:
-            {{- toYaml .Values.securityContext_pod | nindent 12 }}
+             {{- toYaml .Values.securityContext_pod | nindent 12 }}
           {{- end }}
-          image: {{ .Values.mysql.image }}
-          env:
-            - name: MYSQL_ROOT_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Release.Name }}-secrets
-                  key: db-password
-            - name: MYSQL_USER
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Release.Name }}-secrets
-                  key: db-user
-            - name: MYSQL_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Release.Name }}-secrets
-                  key: db-password
-            - name: MYSQL_DATABASE
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Release.Name }}-secrets
-                  key: db-name
-          {{- if $.Values.resources }}
-          resources:
-            {{- toYaml $.Values.resources | nindent 12 }}
-          {{- end }}
-          volumeMounts:
-            - name: mysql-data
-              mountPath: /bitnami/mysql/data
-            - name: mysql-data
-              mountPath: /opt/bitnami/mysql/tmp
-      volumes:
-        - name: mysql-data
-          persistentVolumeClaim:
-            claimName: {{ .Release.Name }}-mysql-pvc
----
+          command:
+            - sh
+            - -c
+            - |
+              echo "Waiting for MySQL to be ready..."
+              until nc -z {{ .Release.Name }}-mysql {{ .Values.mysql.port }}; do
+                echo "MySQL is not ready yet, waiting 5 seconds..."
+                sleep 5
+              done
+              echo "MySQL is ready!"
 
 ---
 {{/* Déploiement Symfony */}}
