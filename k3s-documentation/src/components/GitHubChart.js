@@ -16,7 +16,7 @@ const GitHubChart = ({ repo, path, files }) => {
 
         try {
             const promises = files.map(async (file) => {
-                const url = `https://raw.githubusercontent.com/${repo}/refs/heads/documentation/${path}/${file}`;
+                const url = `https://raw.githubusercontent.com/${repo}/refs/heads/master/${path}/${file}`;
                 const response = await fetch(url);
                 if (response.ok) {
                     const content = await response.text();

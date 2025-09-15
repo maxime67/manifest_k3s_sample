@@ -36,7 +36,7 @@ Avant d'utiliser ce projet, assure-toi d'avoir :
 1. Une application ArgoCD te permet de déployer l'application:
 
 ```bash
-kubectl apply -f 01-basics/spring-boot/argocd/argocd-spring-boot.yaml
+kubectl apply -f 02-application/spring-boot/argocd/argocd-spring-boot.yaml
 ```
 
 

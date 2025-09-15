@@ -51,17 +51,6 @@ Avant d'utiliser ce projet, assure-toi d'avoir :
    kubectl get pods
    ```
 
-4. Récupère le port NodePort assigné :
-   ```bash
-   kubectl get services
-   # Note le port dans la colonne PORT(S), format 80:XXXXX/TCP
-   ```
-
-5. Teste l'accès au service :
-   ```bash
-   curl http://<NODE_IP>:<NODEPORT>
-   ```
-
 ## 🌐 Accès au service
 
 Une fois déployé, le service est accessible via :
@@ -108,7 +97,6 @@ spec:
 
 ## ⚠️ Considérations de sécurité
 
-- **Firewall** : Assure-toi que les ports NodePort sont accessibles via le firewall
 - **Exposition** : Tous les nœuds exposent le service, même s'ils n'hébergent pas le pod
 - **Production** : Pour la production, privilégie LoadBalancer ou Ingress avec SSL/TLS
 - **Monitoring** : Surveille l'utilisation des ports pour éviter les conflits
