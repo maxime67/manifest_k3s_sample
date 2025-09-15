@@ -54,7 +54,7 @@ spec:
             - name: mysql-data
               mountPath: /bitnami/mysql/data
             - name: mysql-data
-              mountPath: /opt/bitnami/mysql/
+              mountPath: /opt/bitnami/mysql/tmp
       volumes:
         - name: mysql-data
           persistentVolumeClaim:
