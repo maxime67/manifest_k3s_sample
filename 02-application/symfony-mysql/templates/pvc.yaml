@@ -12,3 +12,33 @@ spec:
   {{- if .Values.mysql.storageClass }}
   storageClassName: {{ .Values.mysql.storageClass }}
   {{- end }}
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Release.Name }}-mysql-pvc-0
+spec:
+  accessModes: [ ReadWriteOnce ]
+  resources:
+    requests:
+      storage: {{ .Values.mysql.storage }}
+  # Ajout de la storageClassName si nécessaire
+  {{- if .Values.mysql.storageClass }}
+  storageClassName: {{ .Values.mysql.storageClass }}
+  {{- end }}
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Release.Name }}-mysql-pvc-1
+spec:
+  accessModes: [ ReadWriteOnce ]
+  resources:
+    requests:
+      storage: {{ .Values.mysql.storage }}
+  # Ajout de la storageClassName si nécessaire
+  {{- if .Values.mysql.storageClass }}
+  storageClassName: {{ .Values.mysql.storageClass }}
+  {{- end }}
