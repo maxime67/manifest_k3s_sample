@@ -81,6 +81,6 @@ spec:
               mountPath: /var/www/html/var/log
       volumes:
         - name: temp-cache
-          emptyDir: { }
+          emptyDir: {}
         - name: temp-log
-          emptyDir: { }
+          emptyDir: {}
