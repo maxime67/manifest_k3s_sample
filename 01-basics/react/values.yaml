@@ -1,6 +1,6 @@
 react:
-  image: "maxxa/k3s_sample_documentation"
+  image: "maxxa/reacttest:latest"
   replica: 2
   service:
-    external_port: 8080
-    internal_port: 8080
+    external_port: 80
+    internal_port: 80
