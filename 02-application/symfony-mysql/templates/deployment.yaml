@@ -52,7 +52,7 @@ spec:
           {{- end }}
           volumeMounts:
             - name: mysql-data
-              mountPath: /var/lib/mysql
+              mountPath: /bitnami/mysql/data
       volumes:
         - name: mysql-data
           persistentVolumeClaim:
