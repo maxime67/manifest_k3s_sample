@@ -1,20 +1,27 @@
 ---
-sidebar_label: 'PostgreSQL'
-sidebar_position: 3
+sidebar_label: 'Simple PostgreSQL'
+sidebar_position: 2
+description: "Déploiement d'un pod PostgreSQL simple"
+tags: ['PostgreSQL', 'pod', 'simple']
 ---
 import GitHubChart from '@site/src/components/GitHubChart';
 
-# Déploiement PostgreSQL avec Stockage Temporaire
+# Déploiement d'un pod PostgreSql simple
+## 🔍 Aperçu
 
-Ce projet contient un Chart permettant de déployer une base de données PostgreSQL, avec un stockage non persitant, dans un cluster Kubernetes.
+- Déploiement d'un pod PostgreSql simple
+- Déploie un service permettant d'exposer le pod au sein du cluster
+- Utilise les secrets Kubernetes pour stocker des données
+
+### Caractéristiques clés
+- ✅ **PostgreSql** : Permet de déployer un serveur PostgreSql vide avec une configuration par défaut
+- ✅ **Exposition** : Permet d'exposer le pod au sein du cluster (peut être accessible depuis l'ip du node en fonction de la configuration)
+- ⚠️ **Limitation** : Les secrets sont stockées dans des variables définies dans ```values.yaml```, privilégiez un externalSecret
+- ⚠️ **Limitation** : Les données ne sont pas persistées au redémarage du pod
 
 ## 🔍 Caractéristiques
-
 - **Image** : `postgres:15`
 - **Service** : ClusterIP (accessible uniquement depuis l'intérieur du cluster)
-- **Stockage** : EmptyDir (temporaire)
-- **Variables** : Configurées via Secrets Kubernetes
-
 
 ## 📂 Contenu du projet
 

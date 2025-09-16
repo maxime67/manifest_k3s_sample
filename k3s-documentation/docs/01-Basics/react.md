@@ -1,14 +1,31 @@
 ---
-sidebar_label: 'React'
-sidebar_position: 5
+sidebar_label: 'Simple React'
+sidebar_position: 4
+description: "Déploiement d'un pod contenant une application React"
+tags: ['Nginx', 'pod', 'simple', 'react']
 ---
+
 import GitHubChart from '@site/src/components/GitHubChart';
 
-# Déploiement Nginx sur Kubernetes
 
-Ce projet contient un CHart permettant de déployer un serveur Nginx contenant un projet react minimal (basé sur l'image nginx:stable-alpine) dans un cluster Kubernetes.
+# Déploiement d'un pod React simple
+## 🔍 Aperçu
 
-Le déploiement crée 2 réplicas
+- Déploiement d'un pod Nginx simple contenant une application React
+- Déploie un service nodePort permettant d'exposer le pod à l'exterieur du cluster
+
+### Caractéristiques clés
+
+- ✅ **Nginx** : Permet de déployer un serveur nginx contenant une application React
+- ✅ **Exposition** : Permet d'exposer le pod à l'exterieur du cluster, accessible depuis l'ip du node
+- ✅ **Probe** : Configure des probes permettant de configurer l'état de santé du pod
+
+## 🔍 Caractéristiques
+
+- **Image** : `maxxa/reacttest:latest`
+- **Service** : NodePort (accessible  depuis l'ip du node, tous les nodes par défaut expose le service sur k3s).
+- **livenessProbe** : Probe permettant de redémarrer le pod en cas de problème.
+- **readinessProbe** : Probe permettant de définir à partir de quel moment le pod est en mesure de recevoir du traffic.
 
 ## 📂 Contenu du projet
 

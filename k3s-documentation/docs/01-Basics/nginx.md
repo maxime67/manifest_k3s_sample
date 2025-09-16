@@ -1,14 +1,21 @@
 ---
-sidebar_label: 'Nginx'
+sidebar_label: 'Simple Nginx'
 sidebar_position: 1
+description: "Déploiement d'un pod nginx simple"
+tags: ['nginx', 'pod', 'simple']
 ---
 import GitHubChart from '@site/src/components/GitHubChart';
 
-# Déploiement Nginx sur Kubernetes
+# Déploiement d'un pod nginx simple
+## 🔍 Aperçu
 
-Ce projet contient un Chart permettant de déployer un serveur Nginx minimal (basé sur l'image nginx:alpine) dans un cluster Kubernetes.
+- Déploiement d'un pod nginx simple
+- Déploie un service permettant d'exposer le pod au sein du cluster
 
-Le déploiement crée 2 réplicas
+### Caractéristiques clés
+- ✅ **Nginx** : Permet de déployer un serveur nginx vide avec une configuration par défaut
+- ✅ **Exposition** : Permet d'exposer le pod au sein du cluster (peut être accessible depuis l'ip du node en fonction de la configuration)
+- ⚠️ **Limitation** : Le pod est par défaut accessible seulement par les autre pods du même cluster
 
 ## 📂 Contenu du projet
 

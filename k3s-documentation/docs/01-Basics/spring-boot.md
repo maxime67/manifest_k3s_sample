@@ -1,7 +1,10 @@
 ---
 sidebar_label: 'Spring Boot'
-sidebar_position: 6
+sidebar_position: 5
+description: "Déploiement d'un pod Tomcat contenant une application Spring Boot"
+tags: ['Nginx', 'pod', 'simple', 'react']
 ---
+
 import GitHubChart from '@site/src/components/GitHubChart';
 
 # Déploiement Spring Boot sur Kubernetes

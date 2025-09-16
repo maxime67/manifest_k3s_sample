@@ -1,20 +1,31 @@
 ---
 sidebar_label: 'PostgreSQL with PVC'
-sidebar_position: 5
+sidebar_position: 3
+description: "Déploiement d'un pod PostgreSQL et d'un Pvc"
+tags: ['PostgreSQL', 'pod', 'simple', 'pvc']
 ---
+
 import GitHubChart from '@site/src/components/GitHubChart';
 
-# Déploiement PostgreSQL avec Stockage Persistant
+# Déploiement d'un pod PostgreSql simple
+## 🔍 Aperçu
 
-Ce projet contient un Chart permettant de déployer une base de données PostgreSQL avec stockage persistant (PVC) dans un cluster Kubernetes.
+- Déploiement d'un pod PostgreSql simple
+- Déploiement d'un PVC utilisé par le pod PostgreSql afin de persiter les données
+- Déploie un service permettant d'exposer le pod au sein du cluster
+- Utilise les secrets Kubernetes pour stocker des données
+
+### Caractéristiques clés
+- ✅ **PostgreSql** : Permet de déployer un serveur PostgreSql vide avec une configuration par défaut
+- ✅ **PVC** : Permet de persister les données suite aux redémarages des pods
+- ✅ **Exposition** : Permet d'exposer le pod au sein du cluster (peut être accessible depuis l'ip du node en fonction de la configuration)
+- ⚠️ **Limitation** : Les secrets sont stockées dans des variables définies dans ```values.yaml```, privilégiez un externalSecret
 
 ## 🔍 Caractéristiques
 
 - **Image** : `postgres:15`
-- **Service** : ClusterIP (accessible uniquement depuis l'intérieur du cluster)
-- **Stockage** : PVC avec `local-path` StorageClass
-- **Variables** : Configurées via Secrets Kubernetes
-- **Persistance** : Les données survivent aux redémarrages et suppressions de pods
+- **Service** : ClusterIP (accessible uniquement depuis l'intérieur du cluster).
+- **Stockage** : PVC avec `local-path` comme StorageClass, par défaut dans k3s.
 
 ## 📂 Contenu du projet
 

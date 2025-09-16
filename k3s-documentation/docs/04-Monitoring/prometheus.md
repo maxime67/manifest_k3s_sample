@@ -1,12 +1,36 @@
 ---
 sidebar_label: 'Prometheus + Grafana'
 sidebar_position: 1
+description: "Déploiement d'une stack d'observabilité prometheus et grafana"
+tags: ['observability', 'serviceAccount', 'cluterRole']
 ---
+
 import GitHubChart from '@site/src/components/GitHubChart';
 
 # Stack d'Observabilité : Prometheus + Grafana
 
-Ce projet contient un exemple de déploiement d'une stack complète d'observabilité avec Prometheus et Grafana sur un cluster Kubernetes.
+## 🔍 Aperçu
+
+- Déploiement d'une stack d'observabilité prometheus et grafana
+- Déploie deux services nodePort permettant d'exposer prometheus et grafana à l'exterieur du cluster
+- Crée un clusterRole et un serviceAccount permettant à prometheus de récupérer des métriques depuis l'API Kubernetes
+- Déploie deux PVC permettant de persister les données et la configuration, à la fois de prometheus et de Grafana
+- Déploie un NodeExporter Prometheus sur tous les nodes du cluster afin de remonter des métriques par nodes
+- Utilise une configMap permettant de stocker la configuration Prometheus
+
+### Caractéristiques clés
+
+- ✅ **Prometheus** : Permet de récolter et stocker des métriques consernant l'ensemble du cluster
+- ✅ **Grafana** : Permet de consomer les données exposées par Prometheus afin de créer entre autres des DashBoard
+- ✅ **NodeExporter** : Composant Prometheus permettant de remonter des métriques systèmes
+- ✅ **PVC** : Les données de prometheus et de grafana sont persistées
+
+## 🔍 Caractéristiques
+
+- **Image** : `prom/prometheus:latest` `prom/node-exporter:latest` `grafana/grafana:latest`
+- **Service** : NodePort (accessible  depuis l'ip du node, tous les nodes par défaut expose le service sur k3s).
+- **livenessProbe** : Probe permettant de redémarrer le pod en cas de problème.
+- **readinessProbe** : Probe permettant de définir à partir de quel moment le pod est en mesure de recevoir du traffic.
 
 ## 📂 Contenu du projet
 
