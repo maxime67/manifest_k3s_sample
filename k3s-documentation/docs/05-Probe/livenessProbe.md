@@ -35,7 +35,7 @@ import GitHubChart from '@site/src/components/GitHubChart';
 
 <GitHubChart
 repo="maxime67/manifest_k3s_sample"
-path="05-probes/liveness"
+path="05-probes"
 files={[
 'livenessProbe.yaml',
 ]}
