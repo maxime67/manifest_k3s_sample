@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: Helm
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/maxime67/manifest_k3s_sample
+    targetRevision: HEAD
+    path: 06-helm/test
+    helm:
+      valueFiles:
+        - values.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: prometheus
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
