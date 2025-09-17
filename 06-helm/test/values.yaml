@@ -149,10 +149,10 @@ volumes: []
 #     optional: false
 
 # Additional volumeMounts on the output Deployment definition.
-volumeMounts: []
-# - name: foo
-#   mountPath: "/etc/foo"
-#   readOnly: true
+volumeMounts:
+ - name: cache
+   mountPath: "/var/cache/nginx"
+   readOnly: false
 
 nodeSelector: {}
 
