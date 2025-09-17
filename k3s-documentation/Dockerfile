@@ -1,7 +1,7 @@
 # Multi-stage build pour optimiser la taille de l'image finale
 
 # Stage 1: Build de l'application
-FROM bitnami/node:18 AS builder
+FROM node:trixie-slim AS builder
 
 # Définir le répertoire de travail
 WORKDIR /app
@@ -32,6 +32,3 @@ COPY docker/nginx.conf /opt/bitnami/nginx/conf/nginx.conf
 
 # Exposition du port
 EXPOSE 80
-
-# L'image Bitnami Nginx démarre automatiquement
-# Pas besoin de CMD spécifique

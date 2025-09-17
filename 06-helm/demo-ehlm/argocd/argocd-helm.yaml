@@ -8,7 +8,7 @@ spec:
   source:
     repoURL: https://github.com/maxime67/manifest_k3s_sample
     targetRevision: HEAD
-    path: 06-helm/test
+    path: 06-helm/demo-helm
     helm:
       valueFiles:
         - values.yaml
