@@ -145,11 +145,16 @@ autoscaling:
 volumes:
  - name: cache
    emptyDir: {}
+ - name: run
+   emptyDir: { }
 
 # Additional volumeMounts on the output Deployment definition.
 volumeMounts:
  - name: cache
    mountPath: "/var/cache/nginx"
+   readOnly: false
+ - name: run
+   mountPath: "/var/run"
    readOnly: false
 
 nodeSelector: {}
